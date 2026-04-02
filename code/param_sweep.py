@@ -56,7 +56,7 @@ latex_gray = np.array([240, 240, 240])/255
 colormap = 'cool_r'
 
 # Model parameters
-e_m = 1/20. # Membrane permittivity
+from params import e_m, n_herm, N_params, s_log_min, s_log_max, d_log_min, d_log_max, h2d_log_min, h2d_log_max
 
 #------------------------------------------------------------------------------
 # DEFINE INTEGRAND
@@ -92,9 +92,9 @@ def unweighted_integrand(x,h):
 # INTEGRATION FUNCTIONS
 #------------------------------------------------------------------------------
 # Define range of h to search
-h_vals = 10**(np.linspace(-2,2.5,100))
+h_vals = np.logspace(h2d_log_min, h2d_log_max, N_params)
 
-def hermite_half_range_integral(F, h, n_herm=80):
+def hermite_half_range_integral(F, h, n_herm=n_herm):
     """
     Uses n-point Gauss–Hermite on (-inf, inf) with weight exp(-t^2)
     to compute: ∫_0^∞ exp(-(s x)^2) F(x,h) dx.
@@ -129,9 +129,8 @@ def noise_scaling(s, d):
 # PARAMETER SWEEPS
 #------------------------------------------------------------------------------
 # Parameter range
-N_params = 100
-s_vals = 10**(np.linspace(0.,2.,N_params))
-d_vals = 10**(np.linspace(-1.,2.,N_params))
+s_vals = np.logspace(s_log_min, s_log_max, N_params)
+d_vals = np.logspace(d_log_min, d_log_max, N_params)
 
 # Get optimal noise and individual components
 h_opt_ar = np.zeros((N_params, N_params))

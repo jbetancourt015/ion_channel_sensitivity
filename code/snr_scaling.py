@@ -52,27 +52,17 @@ latex_gray = np.array([240, 240, 240])/255
 
 colormap = 'cool_r'
 
-# Medium parameters
-eps_0 = 8.85e-12
-eps = 80*eps_0
-sig = 5e-9
-a = 1.
-c = 1e-2
-tau_D = eps/a
-l_D = 7e-10
-kT = 4.11e-21
+from params import kT, eps, sig, a, c, l_D, tau, R, n_points, N_log_min, N_log_max
 
-# Soma parameters
-tau = 1e-3
-R = 1e-5
-om = 1/tau
+# Derived quantities
+tau_D = eps / a
+om    = 1 / tau
 
 # Crossover point
 N_s = (1/8)*(a*(tau_D**2)/(tau*c*l_D))*((R/sig)**2)*(1+(om*tau)**2)
 
 # N values
-n_points = 100
-N_vals = np.logspace(0.,5.,n_points)
+N_vals = np.logspace(N_log_min, N_log_max, n_points)
 
 # SNR functions
 def SNR_ratio(N):

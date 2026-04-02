@@ -61,7 +61,7 @@ latex_gray = np.array([240, 240, 240])/255
 colormap = 'cool_r'
 
 # Model parameters
-e_m = 1/20. # Membrane permittivity
+from params import e_m, n_herm, d_fixed, s_example, h_log_min, h_log_max, n_points
 
 #------------------------------------------------------------------------------
 # DEFINE INTEGRAND
@@ -95,12 +95,12 @@ def unweighted_integrand(x,h):
 # INTEGRATION FUNCTIONS
 #------------------------------------------------------------------------------
 # Define range of h to search
-h_vals = 10**(np.linspace(-2,5,100))
+h_vals = np.logspace(h_log_min, h_log_max, n_points)
 
 # -----------------------------
 # (B) Gauss–Hermite (recommended if you can factor the Gaussian)
 # -----------------------------
-def hermite_half_range_integral(F, h, n_herm=80):
+def hermite_half_range_integral(F, h, n_herm=n_herm):
     """
     Uses n-point Gauss–Hermite on (-inf, inf) with weight exp(-t^2)
     to compute: ∫_0^∞ exp(-(s x)^2) F(x,h) dx.
@@ -135,10 +135,8 @@ def noise_scaling(s, d):
 #------------------------------------------------------------------------------
 # OPTIMIZING OVER SIGNAL-TO-NOISE RATIO
 #------------------------------------------------------------------------------
-d = 1. # Membrane width
-s = 100. # Ion channel size
-
-s_vals = [1, 10, 100]
+d = d_fixed   # membrane thickness (units of l_D)
+s_vals = s_example
 
 
     
