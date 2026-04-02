@@ -3,7 +3,14 @@ Global parameters for repo/code scripts.
 Edit values here and re-run any script to pick up the changes.
 -------------------------------------------------------------------------------
 """
+import os
 import numpy as np
+
+# ── Output paths ──────────────────────────────────────────────────────────────
+# Absolute path to figures/, resolved relative to this file so scripts work
+# regardless of the working directory they are launched from.
+_here = os.path.dirname(os.path.abspath(__file__))
+FIGURES_DIR = os.path.normpath(os.path.join(_here, '..', '..', 'figures'))
 
 # ── Physical constants ────────────────────────────────────────────────────────
 kT    = 4.11e-21   # thermal energy at ~300 K (J)

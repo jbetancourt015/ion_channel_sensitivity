@@ -52,7 +52,8 @@ latex_gray = np.array([240, 240, 240])/255
 
 colormap = 'cool_r'
 
-from params import kT, eps, sig, a, c, l_D, tau, R, n_points, N_log_min, N_log_max
+import os
+from params import kT, eps, sig, a, c, l_D, tau, R, n_points, N_log_min, N_log_max, FIGURES_DIR
 
 # Derived quantities
 tau_D = eps / a
@@ -82,7 +83,7 @@ ax.set_xscale('log')
 ax.set_ylabel('$\\text{SNR}_N(\omega)/\\text{SNR}_{\\text{cell}}(\omega)$')
 ax.set_xlabel('Number of channels ($N$)')
 
-plt.savefig('../figures/snr_saturation.pdf', dpi=600, bbox_inches='tight')
+plt.savefig(os.path.join(FIGURES_DIR, 'snr_saturation.pdf'), dpi=600, bbox_inches='tight')
 plt.show()
 
 # Numerical results used in the text

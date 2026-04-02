@@ -56,7 +56,8 @@ latex_gray = np.array([240, 240, 240])/255
 colormap = 'cool_r'
 
 # Model parameters
-from params import e_m, n_herm, N_params, s_log_min, s_log_max, d_log_min, d_log_max, h2d_log_min, h2d_log_max
+import os
+from params import e_m, n_herm, N_params, s_log_min, s_log_max, d_log_min, d_log_max, h2d_log_min, h2d_log_max, FIGURES_DIR
 
 #------------------------------------------------------------------------------
 # DEFINE INTEGRAND
@@ -182,7 +183,7 @@ cbar.set_label(r'Optimal height $h^*/l_D$', rotation=270, labelpad=15)
 ax.set_xlabel(r'Sensor width $\sigma/l_D$')
 ax.set_ylabel(r'Membrane height $d/l_D$')
 
-plt.savefig('../figures/optimal_height_sweep.svg', dpi=600, bbox_inches='tight')
+plt.savefig(os.path.join(FIGURES_DIR, 'optimal_height_sweep.svg'), dpi=600, bbox_inches='tight')
 plt.show()
 
 # FIGURE: Optimal noise vs shot noise------------------------------------------
@@ -250,7 +251,7 @@ cbar.set_label(r'Fluctuations $S^M(\omega)/S^M_{\text{shot}}(\omega)$', rotation
 ax.set_xlabel(r'Sensor width $\sigma/l_D$')
 ax.set_ylabel(r'Membrane height $d/l_D$')
 
-plt.savefig('../figures/shot_noise_sweep.svg', dpi=600, bbox_inches='tight')
+plt.savefig(os.path.join(FIGURES_DIR, 'shot_noise_sweep.svg'), dpi=600, bbox_inches='tight')
 plt.show()
 
 # FIGURE: Optimal noise vs JN noise------------------------------------------
@@ -317,7 +318,7 @@ cbar.set_label(r'Fluctuations $S^M(\omega)/S^M_{\text{JN}}(\omega)$', rotation=2
 ax.set_xlabel(r'Sensor width $\sigma/l_D$')
 ax.set_ylabel(r'Membrane height $d/l_D$')
 
-plt.savefig('../figures/JN_noise_sweep.svg', dpi=600, bbox_inches='tight')
+plt.savefig(os.path.join(FIGURES_DIR, 'JN_noise_sweep.svg'), dpi=600, bbox_inches='tight')
 plt.show()
 
 
