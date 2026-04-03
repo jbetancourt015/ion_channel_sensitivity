@@ -92,20 +92,20 @@ from params import (
 # ------------------------------------------------------------------------------
 # DEFINE INTEGRAND
 # ------------------------------------------------------------------------------
-def gamma(x):
+def gamma(x, d):
     return (1.0 + (1 / e_m) * np.tanh(x * d / 2)) ** (-1)
 
 
-def G(x, q, h):
+def G(x, q, h, d):
     # Components of B
     B1 = (h**2) / ((q * h) ** 2 - 1.0)
-    B2 = ((1.0 + q * h) * (gamma(x) / (x + q) - q)) ** (-1)
-    B3 = (q**2) - (x**2) - gamma(x) * (1 - x * h)
+    B2 = ((1.0 + q * h) * (gamma(x, d) / (x + q) - q)) ** (-1)
+    B3 = (q**2) - (x**2) - gamma(x, d) * (1 - x * h)
 
     # Components of C
     C1 = -2 * B1 * (q * (h**2)) / ((q * h) ** 2 - 1.0)
     C2 = -(B2**2) * (
-        h * (gamma(x) / (x + q) - q) - (1 + q * h) * (gamma(x) / ((x + q) ** 2) + 1)
+        h * (gamma(x, d) / (x + q) - q) - (1 + q * h) * (gamma(x, d) / ((x + q) ** 2) + 1)
     )
     C3 = 2 * q
 
@@ -116,9 +116,9 @@ def G(x, q, h):
     return (G1 + G2) * x / q
 
 
-def unweighted_integrand(x, h):
+def unweighted_integrand(x, h, d):
     q = np.sqrt(1 + x**2)
-    G_int = G(x, q, h)
+    G_int = G(x, q, h, d)
     return G_int
 
 
@@ -132,7 +132,7 @@ h_vals = np.logspace(h_log_min, h_log_max, n_points)
 # -----------------------------
 # (B) Gauss–Hermite (recommended if you can factor the Gaussian)
 # -----------------------------
-def hermite_half_range_integral(F, h, n_herm=n_herm):
+def hermite_half_range_integral(F, h, s, d, n_herm=n_herm):
     """
     Uses n-point Gauss–Hermite on (-inf, inf) with weight exp(-t^2)
     to compute: ∫_0^∞ exp(-(s x)^2) F(x,h) dx.
@@ -146,16 +146,16 @@ def hermite_half_range_integral(F, h, n_herm=n_herm):
     # Hermite nodes and weights for ∫ e^{-t^2} g(t) dt
     x, w = np.polynomial.hermite.hermgauss(n_herm)
     # Even extension via |x| to cover only t >= 0
-    G = F(np.abs(x) / s, h)
+    G = F(np.abs(x) / s, h, d)
     return (1.0 / s) * 0.5 * np.sum(w * G)
 
 
 def noise_scaling(s, d):
     # Get raw noise
     S_vals = np.array(
-        [hermite_half_range_integral(unweighted_integrand, h) for h in h_vals]
+        [hermite_half_range_integral(unweighted_integrand, h, s, d) for h in h_vals]
     )
-    S_0 = hermite_half_range_integral(unweighted_integrand, 1.0)
+    S_0 = hermite_half_range_integral(unweighted_integrand, 1.0, s, d)
     # Get SNR values
     chi_vals = h_vals / (1 + h_vals)
     SNR_vals = (chi_vals**2) / S_vals
