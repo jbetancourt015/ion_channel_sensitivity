@@ -85,6 +85,7 @@ from params import (
     h_log_min,
     h_log_max,
     n_points,
+    l_D,
     FIGURES_DIR,
 )
 
@@ -105,7 +106,8 @@ def G(x, q, h, d):
     # Components of C
     C1 = -2 * B1 * (q * (h**2)) / ((q * h) ** 2 - 1.0)
     C2 = -(B2**2) * (
-        h * (gamma(x, d) / (x + q) - q) - (1 + q * h) * (gamma(x, d) / ((x + q) ** 2) + 1)
+        h * (gamma(x, d) / (x + q) - q)
+        - (1 + q * h) * (gamma(x, d) / ((x + q) ** 2) + 1)
     )
     C3 = 2 * q
 
@@ -170,7 +172,7 @@ def noise_scaling(s, d):
 # ------------------------------------------------------------------------------
 # OPTIMIZING OVER SIGNAL-TO-NOISE RATIO
 # ------------------------------------------------------------------------------
-d = d_fixed  # membrane thickness (units of l_D)
+d = d_fixed / l_D  # membrane thickness (units of l_D)
 s_vals = s_example
 
 

@@ -161,47 +161,51 @@ plt.savefig(
 plt.show()
 
 # Numerical results used in the text
-S_shot = (np.pi / 4) * ((sig**2) * (tau_D**2) * a * kT) / l_D
-S_JN = 4 * (np.pi**1.5) * (sig**3) * (c**2) * kT / a
-V0 = np.sqrt((1 / (16 * np.pi)) * tau_D * a * kT / ((c**2) * (sig**2) * l_D))
+S_shot_lo = (np.pi / 4) * ((sig_lo**2) * (tau_D**2) * a * kT) / l_D
+S_shot_hi = (np.pi / 4) * ((sig_hi**2) * (tau_D**2) * a * kT) / l_D
+S_JN_lo = 4 * (np.pi**1.5) * (sig_lo**3) * (c**2) * kT / a
+S_JN_hi = 4 * (np.pi**1.5) * (sig_hi**3) * (c**2) * kT / a
+V0_lo = np.sqrt((1 / (16 * np.pi)) * tau_D * a * kT / ((c**2) * (sig_lo**2) * l_D))
+V0_hi = np.sqrt((1 / (16 * np.pi)) * tau_D * a * kT / ((c**2) * (sig_hi**2) * l_D))
 density_lo, density_hi = (
     N0_lo / (4 * np.pi * (R**2)),
     N0_hi / (4 * np.pi * (R**2)),
 )  # channel densities at crossover
 om_hi = 1e5
-S_shot_voltage_lo = S_shot / (2 * np.pi * (sig_hi**2) * c) ** 2
-S_shot_voltage_hi = S_shot / (2 * np.pi * (sig_lo**2) * c) ** 2
+S_shot_voltage_lo = S_shot_lo / (2 * np.pi * (sig_lo**2) * c) ** 2
+S_shot_voltage_hi = S_shot_hi / (2 * np.pi * (sig_hi**2) * c) ** 2
 t_meas = 1e-5  # measurement time (s)
 dV_shot_lo = np.sqrt(S_shot_voltage_lo / t_meas)
 dV_shot_hi = np.sqrt(S_shot_voltage_hi / t_meas)
+dV_ref = 1e-2  # reference voltage noise for comparison (10 mV)
+t_meas_lo = S_shot_voltage_lo / (dV_ref**2)
+t_meas_hi = S_shot_voltage_hi / (dV_ref**2)
 
 # Cell measurements
 S_cell = 8 * np.pi * (R**2) * c * tau * kT
 S_cell_voltage = S_cell / (4 * np.pi * (R**2) * c) ** 2
 dV_cell = np.sqrt(S_cell_voltage / t_meas)
 
-print("The ratio of shot noise to JN noise is:", S_shot / S_JN)
-print("The resolution per Debye time is:", V0 * 1e3, "mV")
-print("The crossover number of channels is:", N0_lo, "-", N0_hi)
+
+def sf(x, n=4):
+    return f"{x:.{n}g}"
+
+
 print(
-    "The low-frequency channel density at crossover is:",
-    density_lo * 1e-12,
-    "-",
-    density_hi * 1e-12,
-    "channels/μm²",
+    f"The ratio of shot noise to JN noise is: {sf(S_shot_lo / S_JN_lo)} - {sf(S_shot_hi / S_JN_hi)}"
+)
+print(f"The resolution per Debye time is: {sf(V0_lo * 1e3)} - {sf(V0_hi * 1e3)} mV")
+print(
+    f"The measurement time to reach 10 mV noise is: {sf(t_meas_lo * 1e6)} - {sf(t_meas_hi * 1e6)} μs"
+)
+print(f"The crossover number of channels is: {sf(N0_lo)} - {sf(N0_hi)}")
+print(
+    f"The low-frequency channel density at crossover is: {sf(density_lo * 1e-12)} - {sf(density_hi * 1e-12)} channels/μm²"
 )
 print(
-    "The high-frequency channel density at crossover is:",
-    density_lo * (1 + (om_hi * tau) ** 2) * 1e-12,
-    "-",
-    density_hi * (1 + (om_hi * tau) ** 2) * 1e-12,
-    "channels/μm²",
+    f"The high-frequency channel density at crossover is: {sf(density_lo * (1 + (om_hi * tau) ** 2) * 1e-12)} - {sf(density_hi * (1 + (om_hi * tau) ** 2) * 1e-12)} channels/μm²"
 )
-print("The voltage noise for a cell measurement is:", dV_cell * 1e3, "mV")
+print(f"The voltage noise for a cell measurement is: {sf(dV_cell * 1e3)} mV")
 print(
-    "The voltage noise for a sensor measurement is:",
-    dV_shot_lo * 1e3,
-    "-",
-    dV_shot_hi * 1e3,
-    "mV",
+    f"The voltage noise for a sensor measurement is: {sf(dV_shot_lo * 1e3)} - {sf(dV_shot_hi * 1e3)} mV"
 )

@@ -300,6 +300,9 @@ ax.set_ylabel(r"Membrane thickness $d/l_D$")
 plt.savefig(
     os.path.join(FIGURES_DIR, "shot_noise_sweep.svg"), dpi=600, bbox_inches="tight"
 )
+plt.savefig(
+    os.path.join(FIGURES_DIR, "shot_noise_sweep.pdf"), dpi=600, bbox_inches="tight"
+)
 plt.show()
 
 # FIGURE: Optimal noise vs JN noise------------------------------------------
@@ -373,5 +376,8 @@ ax.set_ylabel(r"Membrane thickness $d/l_D$")
 
 plt.savefig(
     os.path.join(FIGURES_DIR, "JN_noise_sweep.svg"), dpi=600, bbox_inches="tight"
+)
+plt.savefig(
+    os.path.join(FIGURES_DIR, "JN_noise_sweep.pdf"), dpi=600, bbox_inches="tight"
 )
 plt.show()
