@@ -26,6 +26,7 @@ c = 1e-2  # membrane capacitance per area (F/m²)
 
 # ── Medium / electrostatic parameters ────────────────────────────────────────
 sig = 5e-9  # ion channel width (m)
+sig_lo, sig_hi = 1e-9, 5e-9  # σ range for bounds
 l_D = 7e-10  # Debye screening length (m)
 eps_m = d / (1.0 / c - 2 * l_D / eps)  # effective membrane permittivity (F/m)
 # e_m = 1 / 20.0  # membrane-to-water permittivity ratio ε_m/ε_w
