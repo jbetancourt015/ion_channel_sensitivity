@@ -210,6 +210,9 @@ ax.set_xlabel("Sensor height $h/l_D$")
 plt.savefig(
     os.path.join(FIGURES_DIR, "snr_height_scaling.svg"), dpi=600, bbox_inches="tight"
 )
+plt.savefig(
+    os.path.join(FIGURES_DIR, "snr_height_scaling.pdf"), dpi=600, bbox_inches="tight"
+)
 plt.show()
 
 

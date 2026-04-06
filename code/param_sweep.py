@@ -225,6 +225,9 @@ ax.set_ylabel(r"Membrane thickness $d/l_D$")
 plt.savefig(
     os.path.join(FIGURES_DIR, "optimal_height_sweep.svg"), dpi=600, bbox_inches="tight"
 )
+plt.savefig(
+    os.path.join(FIGURES_DIR, "optimal_height_sweep.pdf"), dpi=600, bbox_inches="tight"
+)
 plt.show()
 
 # FIGURE: Optimal noise vs shot noise------------------------------------------
