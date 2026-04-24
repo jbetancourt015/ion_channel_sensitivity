@@ -80,7 +80,7 @@ import os
 from params import (
     e_m,
     n_herm,
-    d_fixed,
+    d_norm,
     s_example,
     h_log_min,
     h_log_max,
@@ -172,7 +172,6 @@ def noise_scaling(s, d):
 # ------------------------------------------------------------------------------
 # OPTIMIZING OVER SIGNAL-TO-NOISE RATIO
 # ------------------------------------------------------------------------------
-d = d_fixed / l_D  # membrane thickness (units of l_D)
 s_vals = s_example
 
 
@@ -193,7 +192,7 @@ fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
 
 for i, s in enumerate(s_vals):
     # Get optimal values
-    S_vals, SNR_vals, h_opt, SNR_opt = noise_scaling(s, d)
+    S_vals, SNR_vals, h_opt, SNR_opt = noise_scaling(s, d_norm)
 
     # FIGURE: SCALING OF SIGNAL-TO-NOISE RATIO WITH HEIGHT
     chi_vals = h_vals / (1 + h_vals)
@@ -213,6 +212,29 @@ plt.savefig(
 plt.savefig(
     os.path.join(FIGURES_DIR, "snr_height_scaling.pdf"), dpi=600, bbox_inches="tight"
 )
+plt.show()
+
+
+# Numerical debugging
+d_test = 1e2
+fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
+
+for i, s in enumerate(s_vals):
+    # Get optimal values
+    S_vals, SNR_vals, h_opt, SNR_opt = noise_scaling(s, d_test)
+
+    # FIGURE: SCALING OF SIGNAL-TO-NOISE RATIO WITH HEIGHT
+    chi_vals = h_vals / (1 + h_vals)
+
+    ax.plot(h_vals, SNR_vals, lw=2, label=f"$\sigma/l_D={s}$", c=con_colors[i])
+    ax.plot([h_opt, h_opt], [0.0, SNR_opt], lw=1, ls="--", c=con_colors[i], alpha=0.5)
+
+ax.legend()
+ax.set_xscale("log")
+# ax.set_yscale('log')
+
+ax.set_ylabel("$\\text{SNR}(\omega,h)/\\text{SNR}(\omega,l_D)$")
+ax.set_xlabel("Sensor height $h/l_D$")
 plt.show()
 
 

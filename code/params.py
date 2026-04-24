@@ -46,7 +46,7 @@ N_log_min, N_log_max = 0.0, 5.0  # channel number N
 
 # ── Sweep ranges (log10) — optimal_height.py ─────────────────────────────────
 h_log_min, h_log_max = -2.0, 5.0  # sensor height h / l_D
-d_fixed = d  # membrane thickness for h-sweep (units of l_D)
+d_norm = d/l_D  # membrane thickness for h-sweep (units of l_D)
 s_example = [1, 10, 100]  # σ/l_D values to compare in h-sweep plot
 
 # ── Sweep ranges (log10) — param_sweep.py ────────────────────────────────────

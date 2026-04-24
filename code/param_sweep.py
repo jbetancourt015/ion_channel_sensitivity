@@ -175,12 +175,14 @@ h_opt_ar = np.zeros((N_params, N_params))
 S_ar = np.zeros((N_params, N_params))
 S_shot_ar = np.zeros((N_params, N_params))
 S_JN_ar = np.zeros((N_params, N_params))
+SNR_rel_ar = np.zeros((N_params, N_params))
 
 for i, s in enumerate(tqdm(s_vals)):
     for j, d in enumerate(d_vals):
         S_vals, SNR_vals, h_opt, S_opt = noise_scaling(s, d)
         h_opt_ar[i, j] = h_opt
         S_ar[i, j] = S_opt
+        SNR_rel_ar[i, j] = np.max(SNR_vals)  # SNR(h*)/SNR(l_D); SNR_vals normalized to 1 at h=l_D
         S_shot_ar[i, j] = 1.0 / (8 * (s**2))
         S_JN_ar[i, j] = (np.sqrt(np.pi) / (2 * s)) * ((1.0 + d / (2 * e_m)) ** (-2))
 
@@ -382,5 +384,35 @@ plt.savefig(
 )
 plt.savefig(
     os.path.join(FIGURES_DIR, "JN_noise_sweep.pdf"), dpi=600, bbox_inches="tight"
+)
+plt.show()
+
+# FIGURE: Relative SNR SNR(h*)/SNR(l_D)---------------------------------------
+fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
+
+pcm = ax.pcolormesh(
+    s_edges,
+    d_edges,
+    SNR_rel_ar.T,
+    norm=LogNorm(),
+    cmap="viridis",
+    shading="auto",
+    rasterized=True,
+)
+
+ax.set_xscale("log")
+ax.set_yscale("log")
+
+cbar = fig.colorbar(pcm, ax=ax)
+cbar.set_label(r"Relative SNR $\mathrm{SNR}(h^*)/\mathrm{SNR}(l_D)$", rotation=270, labelpad=15)
+
+ax.set_xlabel(r"Sensor width $\sigma/l_D$")
+ax.set_ylabel(r"Membrane thickness $d/l_D$")
+
+plt.savefig(
+    os.path.join(FIGURES_DIR, "relative_SNR.svg"), dpi=600, bbox_inches="tight"
+)
+plt.savefig(
+    os.path.join(FIGURES_DIR, "relative_SNR.pdf"), dpi=600, bbox_inches="tight"
 )
 plt.show()
