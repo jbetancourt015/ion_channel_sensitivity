@@ -23,6 +23,7 @@ import matplotlib as mpl
 import logging
 from matplotlib.colors import LogNorm, LinearSegmentedColormap
 from tqdm import tqdm
+from noise_integral import noise_scaling
 
 plt.rcParams.update(
     {
@@ -80,88 +81,8 @@ from params import (
     s_log_max,
     d_log_min,
     d_log_max,
-    h2d_log_min,
-    h2d_log_max,
     FIGURES_DIR,
 )
-
-
-# ------------------------------------------------------------------------------
-# DEFINE INTEGRAND
-# ------------------------------------------------------------------------------
-# The integral defined here is the dimensionless integral obtained at the end
-# of section S3.5
-def u(x, d):
-    return (1.0 + (1 / e_m) * np.tanh(x * d / 2)) ** (-1)
-
-
-def G(x, q, h, d):
-    # Components of B
-    B1 = (h**2) / ((q * h) ** 2 - 1.0)
-    B2 = ((1.0 + q * h) * (u(x, d) / (x + q) - q)) ** (-1)
-    B3 = (q**2) - (x**2) - u(x, d) * (1 - x * h)
-
-    # Components of C
-    C1 = -2 * B1 * (q * (h**2)) / ((q * h) ** 2 - 1.0)
-    C2 = -(B2**2) * (
-        h * (u(x, d) / (x + q) - q) - (1 + q * h) * (u(x, d) / ((x + q) ** 2) + 1)
-    )
-    C3 = 2 * q
-
-    # Derivative of components
-    G1 = C1 * (2 * B2 * B3 + (1 - (x * h) ** 2) / h)
-    G2 = 2 * B1 * (C2 * B3 + B2 * C3)
-
-    return (G1 + G2) * x / q
-
-
-def unweighted_integrand(x, h, d):
-    q = np.sqrt(1 + x**2)
-    G_int = G(x, q, h, d)
-    return G_int
-
-
-# ------------------------------------------------------------------------------
-# INTEGRATION FUNCTIONS
-# ------------------------------------------------------------------------------
-# Define range of h to search
-h_vals = np.logspace(h2d_log_min, h2d_log_max, N_params)
-
-
-def hermite_half_range_integral(F, h, s, d, n_herm=n_herm):
-    """
-    Uses n-point Gauss–Hermite on (-inf, inf) with weight exp(-t^2)
-    to compute: ∫_0^∞ exp(-(s x)^2) F(x,h) dx.
-
-    Change of variable: t = s x  => dx = dt / s
-    Integral = (1/s) ∫_0^∞ exp(-t^2) F(t/s, h) dt
-
-    We approximate ∫_0^∞ exp(-t^2) G(t) dt = 0.5 ∫_{-∞}^{∞} exp(-t^2) G(|t|) dt
-    and apply Hermite to the even extension G(|t|).
-    """
-    # Hermite nodes and weights for ∫ e^{-t^2} g(t) dt
-    x, w = np.polynomial.hermite.hermgauss(n_herm)
-    # Even extension via |x| to cover only t >= 0
-    G = F(np.abs(x) / s, h, d)
-    return (1.0 / s) * 0.5 * np.sum(w * G)
-
-
-def noise_scaling(s, d):
-    # Get raw noise
-    S_vals = np.array(
-        [hermite_half_range_integral(unweighted_integrand, h, s, d) for h in h_vals]
-    )
-    S_0 = hermite_half_range_integral(unweighted_integrand, 1.0, s, d)
-    # Get SNR values
-    chi_vals = h_vals / (1 + h_vals)
-    SNR_vals = (chi_vals**2) / S_vals
-    SNR_vals /= 1.0 / (4 * S_0)
-    # Get optimal height
-    idx_opt = np.argmax(SNR_vals)
-    h_opt = h_vals[idx_opt]
-    S_opt = S_vals[idx_opt]
-    return S_vals, SNR_vals, h_opt, S_opt
-
 
 # ------------------------------------------------------------------------------
 # PARAMETER SWEEPS

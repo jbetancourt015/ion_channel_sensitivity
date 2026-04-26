@@ -41,6 +41,10 @@ n_herm = 80  # Gauss–Hermite quadrature order
 n_points = 100  # resolution for 1D sweeps
 N_params = 100  # grid resolution for 2D parameter sweeps
 
+# ── Sweep ranges (log10) — noise_integral.py ──────────────────────────────────
+h_log_min, h_log_max = -2.0, 5.0  # sensor height h / l_D
+h_vals = np.logspace(h_log_min, h_log_max, n_points)
+
 # ── Sweep ranges (log10) — snr_scaling.py ────────────────────────────────────
 N_log_min, N_log_max = 0.0, 5.0  # channel number N
 
