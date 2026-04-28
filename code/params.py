@@ -57,3 +57,7 @@ s_example = [1, 10, 100]  # σ/l_D values to compare in h-sweep plot
 s_log_min, s_log_max = 0.0, 2.0  # σ / l_D
 d_log_min, d_log_max = -1.0 + np.log10(2), 2.0  # d / l_D
 h2d_log_min, h2d_log_max = -2.0, 2.5  # h / l_D (height sweep within 2D grid)
+
+# ── Restricted sweep ranges — param_sweep.py (σ/l_D and d/l_D from 1 to 10) ─
+s_log_min_r, s_log_max_r = 0.0, 2.0  # σ / l_D
+d_log_min_r, d_log_max_r = 0.0, 1.0  # d / l_D

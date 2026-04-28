@@ -113,5 +113,5 @@ def noise_scaling(s, d):
     SNR_vals /= 1.0 / (4 * S_0)
     idx_opt = np.argmax(SNR_vals)
     h_opt = h_vals[idx_opt]
-    SNR_opt = SNR_vals[idx_opt]
-    return S_vals, SNR_vals, h_opt, SNR_opt
+    S_opt = S_vals[idx_opt]
+    return S_vals, SNR_vals, h_opt, S_opt

@@ -81,6 +81,10 @@ from params import (
     s_log_max,
     d_log_min,
     d_log_max,
+    s_log_min_r,
+    s_log_max_r,
+    d_log_min_r,
+    d_log_max_r,
     FIGURES_DIR,
 )
 
@@ -138,6 +142,9 @@ pcm = ax.pcolormesh(
 
 ax.set_xscale("log")
 ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
 cbar = fig.colorbar(pcm, ax=ax)
 cbar.set_label(r"Optimal height $h^*/l_D$", rotation=270, labelpad=15)
@@ -214,6 +221,9 @@ ax.legend()
 ax.set_ylim(min(d_vals), max(d_vals))
 ax.set_xscale("log")
 ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
 cbar = fig.colorbar(pcm, ax=ax)
 cbar.set_label(
@@ -291,6 +301,9 @@ ax.legend()
 ax.set_ylim(min(d_vals), max(d_vals))
 ax.set_xscale("log")
 ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
 cbar = fig.colorbar(pcm, ax=ax)
 cbar.set_label(
@@ -323,6 +336,9 @@ pcm = ax.pcolormesh(
 
 ax.set_xscale("log")
 ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
 cbar = fig.colorbar(pcm, ax=ax)
 cbar.set_label(r"Relative SNR $\mathrm{SNR}(h^*)/\mathrm{SNR}(l_D)$", rotation=270, labelpad=15)
@@ -335,5 +351,109 @@ plt.savefig(
 )
 plt.savefig(
     os.path.join(FIGURES_DIR, "relative_SNR.pdf"), dpi=600, bbox_inches="tight"
+)
+plt.show()
+
+# ------------------------------------------------------------------------------
+# RESTRICTED SWEEP: σ/l_D and d/l_D from 1 to 10
+# ------------------------------------------------------------------------------
+s_vals_r = np.logspace(s_log_min_r, s_log_max_r, N_params)
+d_vals_r = np.logspace(d_log_min_r, d_log_max_r, N_params)
+
+S_ar_r = np.zeros((N_params, N_params))
+S_shot_ar_r = np.zeros((N_params, N_params))
+S_JN_ar_r = np.zeros((N_params, N_params))
+
+for i, s in enumerate(tqdm(s_vals_r)):
+    for j, d in enumerate(d_vals_r):
+        S_vals, SNR_vals, h_opt, S_opt = noise_scaling(s, d)
+        S_ar_r[i, j] = S_opt
+        S_shot_ar_r[i, j] = 1.0 / (8 * (s**2))
+        S_JN_ar_r[i, j] = (np.sqrt(np.pi) / (2 * s)) * ((1.0 + d / (2 * e_m)) ** (-2))
+
+s_edges_r = geom_edges(s_vals_r)
+d_edges_r = geom_edges(d_vals_r)
+
+# FIGURE: Restricted shot noise sweep (no dashed line) ------------------------
+fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
+
+ratio_shot_r = S_ar_r / S_shot_ar_r
+S_min = np.nanmin(ratio_shot_r)
+S_max = np.nanmax(ratio_shot_r)
+R = max(S_max / 1, 1 / S_min)
+norm = LogMidpointNormalize(vmin=1 / R, vmax=1 * R, midpoint=1)
+
+pcm = ax.pcolormesh(
+    s_edges_r,
+    d_edges_r,
+    ratio_shot_r.T,
+    norm=norm,
+    cmap=plt.get_cmap("seismic"),
+    shading="auto",
+    rasterized=True,
+)
+
+ax.set_ylim(min(d_vals_r), max(d_vals_r))
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
+
+cbar = fig.colorbar(pcm, ax=ax)
+cbar.set_label(
+    r"Fluctuations $S^M(\omega)/S^M_{\text{shot}}(\omega)$", rotation=270, labelpad=15
+)
+
+ax.set_xlabel(r"Sensor width $\sigma/l_D$")
+ax.set_ylabel(r"Membrane thickness $d/l_D$")
+
+plt.savefig(
+    os.path.join(FIGURES_DIR, "shot_noise_sweep_restricted.svg"), dpi=600, bbox_inches="tight"
+)
+plt.savefig(
+    os.path.join(FIGURES_DIR, "shot_noise_sweep_restricted.pdf"), dpi=600, bbox_inches="tight"
+)
+plt.show()
+
+# FIGURE: Restricted JN noise sweep (no dashed line) --------------------------
+fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
+
+ratio_JN_r = S_ar_r / S_JN_ar_r
+S_min = np.nanmin(ratio_JN_r)
+S_max = np.nanmax(ratio_JN_r)
+R = max(S_max / 1, 1 / S_min)
+norm = LogMidpointNormalize(vmin=1 / R, vmax=1 * R, midpoint=1)
+
+pcm = ax.pcolormesh(
+    s_edges_r,
+    d_edges_r,
+    ratio_JN_r.T,
+    norm=norm,
+    cmap=plt.get_cmap("seismic"),
+    shading="auto",
+    rasterized=True,
+)
+
+ax.set_ylim(min(d_vals_r), max(d_vals_r))
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
+
+cbar = fig.colorbar(pcm, ax=ax)
+cbar.set_label(
+    r"Fluctuations $S^M(\omega)/S^M_{\text{JN}}(\omega)$", rotation=270, labelpad=15
+)
+
+ax.set_xlabel(r"Sensor width $\sigma/l_D$")
+ax.set_ylabel(r"Membrane thickness $d/l_D$")
+
+plt.savefig(
+    os.path.join(FIGURES_DIR, "JN_noise_sweep_restricted.svg"), dpi=600, bbox_inches="tight"
+)
+plt.savefig(
+    os.path.join(FIGURES_DIR, "JN_noise_sweep_restricted.pdf"), dpi=600, bbox_inches="tight"
 )
 plt.show()
