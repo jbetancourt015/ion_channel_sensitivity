@@ -116,3 +116,33 @@ plt.savefig(
     os.path.join(FIGURES_DIR, "snr_height_scaling.pdf"), dpi=600, bbox_inches="tight"
 )
 plt.show()
+
+# ------------------------------------------------------------------------------
+# POSTER FIGURE
+# ------------------------------------------------------------------------------
+s_vals = s_example
+
+# FIGURE: SCALING OF NOISE WITH HEIGHT
+fig, ax = plt.subplots(figsize=(1.2 * width, 1.2 * height))
+
+for i, s in enumerate(s_vals):
+    # Get optimal values
+    S_vals, SNR_vals, h_opt, SNR_opt = noise_scaling(s, d_norm)
+
+    # FIGURE: SCALING OF SIGNAL-TO-NOISE RATIO WITH HEIGHT
+    chi_vals = h_vals / (1 + h_vals)
+
+    ax.plot(h_vals, SNR_vals, lw=2, label=f"$\sigma/l_D={s}$", c=con_colors[i])
+
+ax.legend()
+ax.set_xscale("log")
+
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+
+ax.set_ylabel("$\\text{SNR}(\omega,h)/\\text{SNR}(\omega,l_D)$")
+ax.set_xlabel("Sensor height $h/l_D$")
+plt.savefig(
+    os.path.join(FIGURES_DIR, "poster/snr_height_scaling.pdf"), dpi=600, bbox_inches="tight"
+)
+plt.show()

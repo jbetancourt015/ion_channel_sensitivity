@@ -112,51 +112,83 @@ def SNR_ratio(N, N_star):
 
 
 # FIGURE: Signal-to-noise as a function of channel density---------------------
-fig, ax = plt.subplots(figsize=(0.9 * width, 0.7 * height))
+def make_snr_saturation_fig(gray_bg=False, large=False):
+    if large:
+        width = 5.0
+        height = 4.0
+    else:
+        width = 3.5
+        height = 3.2
 
-ax.plot(
-    1e-12 * nu_vals,
-    SNR_ratio(N_vals, N0_hi * (1 + (om * tau) ** 2)),
-    c=con_colors[0],
-    lw=2,
-    label="$\sigma = 1$ nm",
-)
-ax.plot(
-    1e-12 * nu_vals,
-    SNR_ratio(N_vals, N0_lo * (1 + (om * tau) ** 2)),
-    c=con_colors[0],
-    alpha=0.7,
-    lw=2,
-    label="$\sigma = 5$ nm",
-)
-ax.plot(
-    [1e-12 * nu_s_hi, 1e-12 * nu_s_hi],
-    [SNR_ratio(1.0, N0_hi * (1 + (om * tau) ** 2)), 1.0],
-    c=con_colors[1],
-    ls="--",
-    lw=1,
-)
-ax.plot(
-    [1e-12 * nu_s_lo, 1e-12 * nu_s_lo],
-    [SNR_ratio(1.0, N0_hi * (1 + (om * tau) ** 2)), 1.0],
-    c=con_colors[1],
-    alpha=0.7,
-    ls="--",
-    lw=1,
-)
+    fig, ax = plt.subplots(figsize=(0.9 * width, 0.7 * height))
 
-ax.legend()
-# ax.tick_params(axis='y')
-ax.text(1.5 * 1e-12 * nu_s_hi, 0.003, r"$\nu^*$", c=con_colors[1])
-ax.text(1.5 * 1e-12 * nu_s_lo, 0.003, r"$\nu^*$", c=con_colors[1], alpha=0.5)
+    if gray_bg:
+        fig.patch.set_facecolor(latex_gray)
+        ax.set_facecolor(latex_gray)
 
-ax.set_yscale("log")
-ax.set_xscale("log")
-ax.set_ylabel("$\\text{SNR}_N(\omega)/\\text{SNR}_{\\text{cell}}(\omega)$")
-ax.set_xlabel(r"Channel density $\nu$ (channels/$\mu$m$^2$)")
+    ax.plot(
+        1e-12 * nu_vals,
+        SNR_ratio(N_vals, N0_hi * (1 + (om * tau) ** 2)),
+        c=con_colors[0],
+        lw=2,
+        label="$\sigma = 1$ nm",
+    )
+    ax.plot(
+        1e-12 * nu_vals,
+        SNR_ratio(N_vals, N0_lo * (1 + (om * tau) ** 2)),
+        c=con_colors[0],
+        alpha=0.7,
+        lw=2,
+        label="$\sigma = 5$ nm",
+    )
+    ax.plot(
+        [1e-12 * nu_s_hi, 1e-12 * nu_s_hi],
+        [SNR_ratio(1.0, N0_hi * (1 + (om * tau) ** 2)), 1.0],
+        c=con_colors[1],
+        ls="--",
+        lw=1,
+    )
+    ax.plot(
+        [1e-12 * nu_s_lo, 1e-12 * nu_s_lo],
+        [SNR_ratio(1.0, N0_hi * (1 + (om * tau) ** 2)), 1.0],
+        c=con_colors[1],
+        alpha=0.7,
+        ls="--",
+        lw=1,
+    )
 
+    ax.legend()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)   
+    # ax.tick_params(axis='y')
+    ax.text(1.5 * 1e-12 * nu_s_hi, 0.003, r"$\nu^*$", c=con_colors[1])
+    ax.text(1.5 * 1e-12 * nu_s_lo, 0.003, r"$\nu^*$", c=con_colors[1], alpha=0.5)
+
+    ax.set_yscale("log")
+    ax.set_xscale("log")
+    ax.set_ylabel("$\\text{SNR}_N(\omega)/\\text{SNR}_{\\text{cell}}(\omega)$")
+    ax.set_xlabel(r"Channel density $\nu$ (channels/$\mu$m$^2$)")
+
+    return fig, ax
+
+
+# Main (publication) figure -> figures/snr_saturation/
+main_dir = os.path.join(FIGURES_DIR, "snr_saturation")
+os.makedirs(main_dir, exist_ok=True)
+fig, ax = make_snr_saturation_fig(gray_bg=False)
+plt.savefig(os.path.join(main_dir, "snr_saturation.pdf"), dpi=600, bbox_inches="tight")
+plt.savefig(os.path.join(main_dir, "snr_saturation.svg"), dpi=600, bbox_inches="tight")
+plt.show()
+
+# Grey-background (poster) figure -> figures/poster/
+poster_dir = os.path.join(FIGURES_DIR, "poster")
+os.makedirs(poster_dir, exist_ok=True)
+fig_gray, ax_gray = make_snr_saturation_fig(gray_bg=True, large=True)
 plt.savefig(
-    os.path.join(FIGURES_DIR, "snr_saturation.pdf"), dpi=600, bbox_inches="tight"
+    os.path.join(poster_dir, "snr_saturation.pdf"), dpi=600, bbox_inches="tight"
+)
+plt.savefig(
+    os.path.join(poster_dir, "snr_saturation.svg"), dpi=600, bbox_inches="tight"
 )
 plt.show()
 
