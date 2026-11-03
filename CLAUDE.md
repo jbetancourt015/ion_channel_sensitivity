@@ -9,16 +9,20 @@ Research pipeline for a manuscript on ion channel sensitivity and noise in neura
 ## Environment Setup
 
 ```bash
-python -m venv venv
-source venv/bin/activate
-pip install numpy scipy matplotlib numba tqdm
+python3 -m venv .venv          # created at the project root, one level above repo/
+source .venv/bin/activate
+pip install -r ../requirements.txt   # numpy scipy matplotlib numba tqdm ipykernel
 ```
 
 Key dependencies: numpy, scipy, matplotlib, numba (JIT for cost functions), tqdm.
+`ipykernel` lets the scripts run cell-by-cell in Cursor's interactive window.
 
 ## Execution
 
-All `code/` scripts write figures to `../figures/` at the project root. The output path is resolved from `params.py`'s location, so scripts work correctly regardless of working directory. Typical invocation:
+All `code/` scripts write figures into per-manuscript-figure sub-folders of
+`../figures/` (see `../figures/README.md`), via `params.figure_path(figure,
+filename)`. The path is resolved from `params.py`'s location, so scripts work
+regardless of working directory. Typical invocation:
 
 ```bash
 cd code
@@ -41,8 +45,14 @@ python param_sweep.py          # heatmaps: optimal h*, S^M/S_shot, S^M/S_JN vs. 
 
 ```
 code/*.py  (standalone scripts)
-    → ../figures/*.pdf / *.svg
+    → ../figures/<figure>/raw/*.pdf / *.svg      via params.figure_path()
 ```
+
+Figure folders mirror the PRL submission; SI figures use an `si_` prefix
+(`noise_numerics/` = Fig 1, `spherical_neuron/` = Fig 2, `snr_saturation/` =
+Fig 3, `si_communication_scheme/` = Fig S1, `si_optimal_height/` = Fig S2,
+`si_noise_param_sweep/` = Fig S3). `raw/` holds script output; the folder root
+holds the hand-assembled figure. See `../figures/README.md` for the full table.
 
 All scripts share a single parameters file: **`code/params.py`**. Edit values there and re-run any script to pick up the change. Each script imports only what it needs via `from params import ...`.
 

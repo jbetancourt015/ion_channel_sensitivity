@@ -82,6 +82,7 @@ from params import (
     d_norm,
     s_example,
     FIGURES_DIR,
+    figure_path,
     h_vals,
 )
 
@@ -109,11 +110,16 @@ ax.set_xscale("log")
 
 ax.set_ylabel("$\\text{SNR}(\omega,h)/\\text{SNR}(\omega,l_D)$")
 ax.set_xlabel("Sensor height $h/l_D$")
+# PRL Fig S2(a) -> figures/si_optimal_height/raw/
 plt.savefig(
-    os.path.join(FIGURES_DIR, "snr_height_scaling.svg"), dpi=600, bbox_inches="tight"
+    figure_path("si_optimal_height", "snr_height_scaling.svg"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.savefig(
-    os.path.join(FIGURES_DIR, "snr_height_scaling.pdf"), dpi=600, bbox_inches="tight"
+    figure_path("si_optimal_height", "snr_height_scaling.pdf"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.show()
 

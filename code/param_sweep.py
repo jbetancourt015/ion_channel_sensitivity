@@ -86,6 +86,7 @@ from params import (
     d_log_min_r,
     d_log_max_r,
     FIGURES_DIR,
+    figure_path,
 )
 
 # ------------------------------------------------------------------------------
@@ -152,11 +153,16 @@ cbar.set_label(r"Optimal height $h^*/l_D$", rotation=270, labelpad=15)
 ax.set_xlabel(r"Sensor width $\sigma/l_D$")
 ax.set_ylabel(r"Membrane thickness $d/l_D$")
 
+# PRL Fig S2(b) -> figures/si_optimal_height/raw/
 plt.savefig(
-    os.path.join(FIGURES_DIR, "optimal_height_sweep.svg"), dpi=600, bbox_inches="tight"
+    figure_path("si_optimal_height", "optimal_height_sweep.svg"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.savefig(
-    os.path.join(FIGURES_DIR, "optimal_height_sweep.pdf"), dpi=600, bbox_inches="tight"
+    figure_path("si_optimal_height", "optimal_height_sweep.pdf"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.show()
 
@@ -233,11 +239,16 @@ cbar.set_label(
 ax.set_xlabel(r"Sensor width $\sigma/l_D$")
 ax.set_ylabel(r"Membrane thickness $d/l_D$")
 
+# PRL Fig 1(b) -> figures/noise_numerics/raw/  (also reused by SI Fig S3(a))
 plt.savefig(
-    os.path.join(FIGURES_DIR, "shot_noise_sweep.svg"), dpi=600, bbox_inches="tight"
+    figure_path("noise_numerics", "shot_noise_sweep.svg"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.savefig(
-    os.path.join(FIGURES_DIR, "shot_noise_sweep.pdf"), dpi=600, bbox_inches="tight"
+    figure_path("noise_numerics", "shot_noise_sweep.pdf"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.show()
 
@@ -313,11 +324,104 @@ cbar.set_label(
 ax.set_xlabel(r"Sensor width $\sigma/l_D$")
 ax.set_ylabel(r"Membrane thickness $d/l_D$")
 
+# PRL Fig 1(c) -> figures/noise_numerics/raw/  (also reused by SI Fig S3(b))
 plt.savefig(
-    os.path.join(FIGURES_DIR, "JN_noise_sweep.svg"), dpi=600, bbox_inches="tight"
+    figure_path("noise_numerics", "JN_noise_sweep.svg"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.savefig(
-    os.path.join(FIGURES_DIR, "JN_noise_sweep.pdf"), dpi=600, bbox_inches="tight"
+    figure_path("noise_numerics", "JN_noise_sweep.pdf"),
+    dpi=600,
+    bbox_inches="tight",
+)
+plt.show()
+
+# FIGURE: Shot noise vs optimal noise (flipped) ----------------------------
+fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
+
+pcm = ax.pcolormesh(
+    s_edges,
+    d_edges,
+    (S_shot_ar / S_ar).T,
+    norm=LogNorm(),  # colorbar range set automatically
+    cmap="viridis",
+    shading="auto",
+    rasterized=True,
+)
+
+ax.plot(s_vals, d_crit, c="k", lw=1, ls="--", label="$\sigma^*(d)$")
+ax.legend()
+
+ax.set_ylim(min(d_vals), max(d_vals))
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
+
+cbar = fig.colorbar(pcm, ax=ax)
+cbar.set_label(
+    r"$S^M_{\text{shot}}(\omega)/S^M(\omega)$", rotation=270, labelpad=15
+)
+
+ax.set_xlabel(r"Sensor width $\sigma/l_D$")
+ax.set_ylabel(r"Membrane thickness $d/l_D$")
+
+# PRL Fig 1(b), flipped ratio -> figures/noise_numerics/raw/
+plt.savefig(
+    figure_path("noise_numerics", "shot_noise_sweep_flipped.svg"),
+    dpi=600,
+    bbox_inches="tight",
+)
+plt.savefig(
+    figure_path("noise_numerics", "shot_noise_sweep_flipped.pdf"),
+    dpi=600,
+    bbox_inches="tight",
+)
+plt.show()
+
+# FIGURE: JN noise vs optimal noise (flipped) -----------------------------
+fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
+
+pcm = ax.pcolormesh(
+    s_edges,
+    d_edges,
+    (S_JN_ar / S_ar).T,
+    norm=LogNorm(),  # colorbar range set automatically
+    cmap="viridis",
+    shading="auto",
+    rasterized=True,
+)
+
+ax.plot(s_vals, d_crit, c="k", lw=1, ls="--", label="$\sigma^*(d)$")
+ax.legend()
+
+ax.set_ylim(min(d_vals), max(d_vals))
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
+
+cbar = fig.colorbar(pcm, ax=ax)
+cbar.set_label(
+    r"$S^M_{\text{JN}}(\omega)/S^M(\omega)$", rotation=270, labelpad=15
+)
+
+ax.set_xlabel(r"Sensor width $\sigma/l_D$")
+ax.set_ylabel(r"Membrane thickness $d/l_D$")
+
+# PRL Fig 1(c), flipped ratio -> figures/noise_numerics/raw/
+plt.savefig(
+    figure_path("noise_numerics", "JN_noise_sweep_flipped.svg"),
+    dpi=600,
+    bbox_inches="tight",
+)
+plt.savefig(
+    figure_path("noise_numerics", "JN_noise_sweep_flipped.pdf"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.show()
 
@@ -346,11 +450,12 @@ cbar.set_label(r"Relative SNR $\mathrm{SNR}(h^*)/\mathrm{SNR}(l_D)$", rotation=2
 ax.set_xlabel(r"Sensor width $\sigma/l_D$")
 ax.set_ylabel(r"Membrane thickness $d/l_D$")
 
+# not in the manuscript -> figures/si_relative_snr/raw/
 plt.savefig(
-    os.path.join(FIGURES_DIR, "relative_SNR.svg"), dpi=600, bbox_inches="tight"
+    figure_path("si_relative_snr", "relative_SNR.svg"), dpi=600, bbox_inches="tight"
 )
 plt.savefig(
-    os.path.join(FIGURES_DIR, "relative_SNR.pdf"), dpi=600, bbox_inches="tight"
+    figure_path("si_relative_snr", "relative_SNR.pdf"), dpi=600, bbox_inches="tight"
 )
 plt.show()
 
@@ -408,11 +513,16 @@ cbar.set_label(
 ax.set_xlabel(r"Sensor width $\sigma/l_D$")
 ax.set_ylabel(r"Membrane thickness $d/l_D$")
 
+# not in the manuscript -> figures/si_noise_param_sweep_restricted/raw/
 plt.savefig(
-    os.path.join(FIGURES_DIR, "shot_noise_sweep_restricted.svg"), dpi=600, bbox_inches="tight"
+    figure_path("si_noise_param_sweep_restricted", "shot_noise_sweep_restricted.svg"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.savefig(
-    os.path.join(FIGURES_DIR, "shot_noise_sweep_restricted.pdf"), dpi=600, bbox_inches="tight"
+    figure_path("si_noise_param_sweep_restricted", "shot_noise_sweep_restricted.pdf"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.show()
 
@@ -450,10 +560,109 @@ cbar.set_label(
 ax.set_xlabel(r"Sensor width $\sigma/l_D$")
 ax.set_ylabel(r"Membrane thickness $d/l_D$")
 
+# not in the manuscript -> figures/si_noise_param_sweep_restricted/raw/
 plt.savefig(
-    os.path.join(FIGURES_DIR, "JN_noise_sweep_restricted.svg"), dpi=600, bbox_inches="tight"
+    figure_path("si_noise_param_sweep_restricted", "JN_noise_sweep_restricted.svg"),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.savefig(
-    os.path.join(FIGURES_DIR, "JN_noise_sweep_restricted.pdf"), dpi=600, bbox_inches="tight"
+    figure_path("si_noise_param_sweep_restricted", "JN_noise_sweep_restricted.pdf"),
+    dpi=600,
+    bbox_inches="tight",
+)
+plt.show()
+
+# FIGURE: Restricted shot noise sweep, flipped ratio -------------------------
+fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
+
+pcm = ax.pcolormesh(
+    s_edges_r,
+    d_edges_r,
+    (S_shot_ar_r / S_ar_r).T,
+    norm=LogNorm(),  # colorbar range set automatically
+    cmap="viridis",
+    shading="auto",
+    rasterized=True,
+)
+
+ax.set_ylim(min(d_vals_r), max(d_vals_r))
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
+
+cbar = fig.colorbar(pcm, ax=ax)
+cbar.set_label(
+    r"$S^M_{\text{shot}}(\omega)/S^M(\omega)$", rotation=270, labelpad=15
+)
+
+ax.set_xlabel(r"Sensor width $\sigma/l_D$")
+ax.set_ylabel(r"Membrane thickness $d/l_D$")
+
+# not in the manuscript -> figures/si_noise_param_sweep_restricted/raw/
+plt.savefig(
+    figure_path(
+        "si_noise_param_sweep_restricted",
+        "shot_noise_sweep_restricted_flipped.svg",
+    ),
+    dpi=600,
+    bbox_inches="tight",
+)
+plt.savefig(
+    figure_path(
+        "si_noise_param_sweep_restricted",
+        "shot_noise_sweep_restricted_flipped.pdf",
+    ),
+    dpi=600,
+    bbox_inches="tight",
+)
+plt.show()
+
+# FIGURE: Restricted JN noise sweep, flipped ratio --------------------------
+fig, ax = plt.subplots(figsize=(0.9 * width, 0.9 * height))
+
+pcm = ax.pcolormesh(
+    s_edges_r,
+    d_edges_r,
+    (S_JN_ar_r / S_ar_r).T,
+    norm=LogNorm(),  # colorbar range set automatically
+    cmap="viridis",
+    shading="auto",
+    rasterized=True,
+)
+
+ax.set_ylim(min(d_vals_r), max(d_vals_r))
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_yticks([1, 10])
+ax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
+
+cbar = fig.colorbar(pcm, ax=ax)
+cbar.set_label(
+    r"$S^M_{\text{JN}}(\omega)/S^M(\omega)$", rotation=270, labelpad=15
+)
+
+ax.set_xlabel(r"Sensor width $\sigma/l_D$")
+ax.set_ylabel(r"Membrane thickness $d/l_D$")
+
+# not in the manuscript -> figures/si_noise_param_sweep_restricted/raw/
+plt.savefig(
+    figure_path(
+        "si_noise_param_sweep_restricted",
+        "JN_noise_sweep_restricted_flipped.svg",
+    ),
+    dpi=600,
+    bbox_inches="tight",
+)
+plt.savefig(
+    figure_path(
+        "si_noise_param_sweep_restricted",
+        "JN_noise_sweep_restricted_flipped.pdf",
+    ),
+    dpi=600,
+    bbox_inches="tight",
 )
 plt.show()

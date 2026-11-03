@@ -13,6 +13,30 @@ import numpy as np
 _here = os.path.dirname(os.path.abspath(__file__))
 FIGURES_DIR = os.path.normpath(os.path.join(_here, "..", "..", "figures"))
 
+# figures/ is organised one sub-folder per manuscript figure (see the PRL
+# submission).  SI figures carry an ``si_`` prefix.  Raw script output goes in a
+# ``raw/`` sub-folder; hand-assembled/edited figures sit at the folder root.
+#
+#   noise_numerics/          PRL Fig 1  (raw: shot_noise_sweep, JN_noise_sweep)
+#   spherical_neuron/         PRL Fig 2  (schematic, no raw)
+#   snr_saturation/           PRL Fig 3  (raw: snr_saturation)
+#   si_communication_scheme/  PRL Fig S1 (schematic, no raw)
+#   si_optimal_height/        PRL Fig S2 (raw: snr_height_scaling, optimal_height_sweep)
+#   si_noise_param_sweep/     PRL Fig S3 (reuses noise_numerics/raw/*)
+#   si_noise_param_sweep_restricted/, si_relative_snr/   not in the manuscript
+
+
+def figure_path(figure, filename, raw=True):
+    """Return an output path inside ``figures/<figure>/`` (or ``.../raw/``).
+
+    ``figure`` is the manuscript-figure folder name, e.g. ``"noise_numerics"``
+    or ``"si_optimal_height"``.  The directory is created if needed.
+    """
+    parts = [FIGURES_DIR, figure] + (["raw"] if raw else [])
+    out_dir = os.path.join(*parts)
+    os.makedirs(out_dir, exist_ok=True)
+    return os.path.join(out_dir, filename)
+
 # ── Physical constants ────────────────────────────────────────────────────────
 kT = 4.11e-21  # thermal energy at ~300 K (J)
 eps_0 = 8.85e-12  # vacuum permittivity (F/m)

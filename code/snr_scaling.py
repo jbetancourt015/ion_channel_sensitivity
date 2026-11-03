@@ -172,8 +172,8 @@ def make_snr_saturation_fig(gray_bg=False, large=False):
     return fig, ax
 
 
-# Main (publication) figure -> figures/snr_saturation/
-main_dir = os.path.join(FIGURES_DIR, "snr_saturation")
+# PRL Fig 3 -> figures/snr_saturation/raw/
+main_dir = os.path.join(FIGURES_DIR, "snr_saturation", "raw")
 os.makedirs(main_dir, exist_ok=True)
 fig, ax = make_snr_saturation_fig(gray_bg=False)
 plt.savefig(os.path.join(main_dir, "snr_saturation.pdf"), dpi=600, bbox_inches="tight")
