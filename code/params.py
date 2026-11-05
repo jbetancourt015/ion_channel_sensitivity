@@ -85,3 +85,12 @@ h2d_log_min, h2d_log_max = -2.0, 2.5  # h / l_D (height sweep within 2D grid)
 # ── Restricted sweep ranges — param_sweep.py (σ/l_D and d/l_D from 1 to 10) ─
 s_log_min_r, s_log_max_r = 0.0, 2.0  # σ / l_D
 d_log_min_r, d_log_max_r = 0.0, 1.0  # d / l_D
+
+# ── Numerical results cache ───────────────────────────────────────────────────
+NUMERICAL_RESULTS_DIR = os.path.normpath(os.path.join(_here, "..", "numerical_results"))
+
+
+def results_path(filename):
+    """Return a path inside ``repo/numerical_results/`` (created if needed)."""
+    os.makedirs(NUMERICAL_RESULTS_DIR, exist_ok=True)
+    return os.path.join(NUMERICAL_RESULTS_DIR, filename)
