@@ -129,6 +129,12 @@ def SV_plate_cap(s, r_eps, d):
     return integrate.quad(f, 1e-12, 8.0 / s, limit=300, epsrel=1e-9)[0] / (4.0 * np.pi * c_eff(r_eps, d)**2)
 
 
+def SV_plate_count(s, r_eps, d):
+    """Counting voltage-referred noise of the plate, (eps_m/(Q c_eff))^2 S^H_count, units k_B T tau_D/(eps l_D)."""
+    f = lambda k: k * np.exp(-(k * s)**2) * A_plate_count(k, r_eps, d)
+    return integrate.quad(f, 1e-12, 8.0 / s, limit=200, epsrel=1e-6)[0] / (4.0 * np.pi * c_eff(r_eps, d)**2)
+
+
 # ------------------------------------------------------------------ gain, voltage noise, closed forms
 def gain(s, h, r_eps, d):
     """Gain g = d<M>/dV = 4 pi sigma^2 c_eff eta/(1 + eta), eta = h/l_D."""

@@ -37,6 +37,7 @@ def figure_path(figure, filename, raw=True):
     os.makedirs(out_dir, exist_ok=True)
     return os.path.join(out_dir, filename)
 
+
 # ── Physical constants ────────────────────────────────────────────────────────
 kT = 4.11e-21  # thermal energy at ~300 K (J)
 eps_0 = 8.85e-12  # vacuum permittivity (F/m)
@@ -51,9 +52,8 @@ c = 1e-2  # membrane capacitance per area (F/m²)
 # ── Medium / electrostatic parameters ────────────────────────────────────────
 sig = 5e-9  # ion channel width (m)
 sig_lo, sig_hi = 1e-9, 5e-9  # σ range for bounds
-l_D = 7e-10  # Debye screening length (m)
+l_D = 8e-10  # Debye screening length (m)
 eps_m = d / (1.0 / c - 2 * l_D / eps)  # effective membrane permittivity (F/m)
-# e_m = 1 / 20.0  # membrane-to-water permittivity ratio ε_m/ε_w
 e_m = eps_m / eps  # membrane-to-water permittivity ratio ε_m/ε_w
 
 # ── Soma / cell parameters ────────────────────────────────────────────────────
@@ -74,7 +74,7 @@ N_log_min, N_log_max = 0.0, 5.0  # channel number N
 
 # ── Sweep ranges (log10) — optimal_height.py ─────────────────────────────────
 h_log_min, h_log_max = -2.0, 5.0  # sensor height h / l_D
-d_norm = d/l_D  # membrane thickness for h-sweep (units of l_D)
+d_norm = d / l_D  # membrane thickness for h-sweep (units of l_D)
 s_example = [1, 10, 100]  # σ/l_D values to compare in h-sweep plot
 
 # ── Sweep ranges (log10) — param_sweep.py ────────────────────────────────────

@@ -80,7 +80,7 @@ con_colors = (
     )
     / 255
 )
-c_high, c_low = con_colors[0], con_colors[1]  # blue (top), red (bottom)
+c_high, c_low = con_colors[2], con_colors[4]  # plot colors for the two traces
 
 # ── Tunable constants ─────────────────────────────────────────────────────────
 M_HIGH, M_LOW = 0.5, -0.5  # trace means
