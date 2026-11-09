@@ -100,7 +100,9 @@ LABELPAD = 4  # y-label distance from the tick labels (pt)
 LW = 1.5  # linewidth of the curves (both panels)
 LW_DASH = 1  # linewidth of dashed guide lines (both panels)
 FONT_ANNOT = 9  # fontsize of in-plot annotations (both panels)
-YLABEL_GAP_FRAC = 0.5  # y-label distance from the left edge, relative to panel b's default
+YLABEL_GAP_FRAC = (
+    0.5  # y-label distance from the left edge, relative to panel b's default
+)
 
 # panel a (cartoon)
 Z_MAX = 2.0
@@ -181,7 +183,7 @@ if __name__ == "__main__":
         )
     axa.set_xlim(0, Z_MAX)
     axa.set_ylim(*YLIM_A)
-    axa.set_xlabel(r"Distance from bulk $z$")
+    axa.set_xlabel(r"Distance from membrane $z$")
     axa.set_ylabel(r"Charge density $\rho(\mathbf{k},z)$", labelpad=LABELPAD)
     align_labels(axa)
 

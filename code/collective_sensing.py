@@ -64,8 +64,8 @@ pg_width = 165  # mm
 mm_to_in = 25.4
 
 # Panel dimensions in inches (scaled from the mm reference), width / height = aspect
-aspect = 1.4
-width_md = 0.45 * pg_width / mm_to_in
+aspect = 1.6
+width_md = 90 / mm_to_in
 height_md = width_md / aspect
 
 fig_margins_md = dict(left=0.22, right=0.95, bottom=0.24, top=0.9)
@@ -94,6 +94,21 @@ LW_DASH = 1  # linewidth of the nu* marker
 FONT_ANNOT = 9  # fontsize of in-plot annotations
 YLIM = (1e-3, 1.5)
 
+# ── Traces cartoon panel (xi_j(t) for many channels) ──────────────────────────
+width_tr = 45 / mm_to_in  # 45 mm wide
+aspect_tr = 1.2  # width / height
+height_tr = width_tr / aspect_tr
+fig_margins_tr = dict(left=0.12, right=0.77, bottom=0.14, top=0.97)
+TR_OFFSETS = (3.2, 2.0, 0.0)  # vertical offsets of xi_1, xi_2, xi_N
+TR_VDOTS_Y = 1.0  # height of the vdots between xi_2 and xi_N
+TR_STD = 0.22  # stationary std of each OU trace
+TR_TAU = 1.0  # OU correlation time
+TR_TMAX = 25.0  # total time
+TR_DT = 0.02  # time step
+TR_LW = 0.6  # trace linewidth
+TR_SEED = 2718
+TR_LABELS = (r"$\xi_1(t)$", r"$\xi_2(t)$", r"$\xi_N(t)$")
+
 # ── Fisher information rates (V^-2 s^-1) ──────────────────────────────────────
 area = 4 * np.pi * R**2  # cell area (m^2)
 R_m = tau / (area * c)  # membrane resistance (Ohm)
@@ -102,6 +117,65 @@ I_cell = 1 / S_V_cell  # whole-cell readout
 I_ind = 1 / (DV_IND**2 * T_IND)  # single channel, local noise only
 N_star = I_cell / I_ind  # crossover channel number
 nu_star = N_star / area  # crossover density (m^-2)
+
+
+def ou_trace(t, mean, std, tau, rng):
+    """Exact discretization of a stationary OU process."""
+    dt = t[1] - t[0]
+    rho = np.exp(-dt / tau)
+    noise = std * np.sqrt(1 - rho**2) * rng.standard_normal(len(t))
+    x = np.empty(len(t))
+    x[0] = mean + std * rng.standard_normal()
+    for k in range(len(t) - 1):
+        x[k + 1] = mean + rho * (x[k] - mean) + noise[k]
+    return x
+
+
+def traces_panel():
+    """Cartoon of N measurement traces xi_j(t) stacked vertically."""
+    t = np.arange(0.0, TR_TMAX + TR_DT, TR_DT)
+    rng = np.random.default_rng(TR_SEED)
+
+    fig, ax = plt.subplots(figsize=(width_tr, height_tr))
+    plt.subplots_adjust(**fig_margins_tr)
+    ax.spines[["left", "right", "top"]].set_visible(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    for off, lab in zip(TR_OFFSETS, TR_LABELS):
+        ax.plot(t, ou_trace(t, off, TR_STD, TR_TAU, rng), "-", lw=TR_LW, color="k")
+        ax.text(
+            1.03,
+            off,
+            lab,
+            transform=ax.get_yaxis_transform(),
+            va="center",
+            ha="left",
+            fontsize=FONT_ANNOT,
+            clip_on=False,
+        )
+    ax.text(
+        0.5,
+        TR_VDOTS_Y,
+        # \vdots hard-codes a 4pt dot spacing; the SVG backend typesets TeX at
+        # 100pt and rescales, which squashes the dots. Use em units instead.
+        r"$\vbox{\baselineskip=0.39em\lineskiplimit=0pt"
+        r"\hbox{.}\hbox{.}\hbox{.}}$",
+        transform=ax.get_yaxis_transform(),
+        va="center",
+        ha="center",
+        fontsize=FONT_ANNOT + 2,
+    )
+
+    pad = 4 * TR_STD
+    ax.set_xlim(0, TR_TMAX)
+    ax.set_ylim(min(TR_OFFSETS) - pad, max(TR_OFFSETS) + pad)
+    ax.set_xlabel(r"Time $t$")
+    ax.set_ylabel(r"Measurements")
+
+    fig.savefig(figure_path(fig_dir, "collective_sensing_traces.pdf"), dpi=600)
+    fig.savefig(figure_path(fig_dir, "collective_sensing_traces.svg"), dpi=600)
+    return fig
 
 
 def I_ratio(N):
@@ -141,7 +215,7 @@ if __name__ == "__main__":
     ax.set_xlim(nu_um[0], nu_um[-1])
     ax.set_ylim(*YLIM)
     ax.set_xlabel(r"Channel density $\nu$ (channels/$\mu$m$^2$)")
-    ax.set_ylabel(r"$\dot{\cal I}_N / \dot{\cal I}_{\rm cell}$")
+    ax.set_ylabel(r"Fisher info rate $\dot{\cal I}_N / \dot{\cal I}_{\rm cell}$")
 
     fig.savefig(
         figure_path(fig_dir, "collective_sensing.pdf"), dpi=600, bbox_inches="tight"
@@ -160,4 +234,6 @@ if __name__ == "__main__":
     )
     print(f"N*     = {N_star:.4g}")
     print(f"nu*    = {nu_star_um:.4g} channels/um^2")
+
+    traces_panel()
     plt.show()
