@@ -2,9 +2,9 @@
     SI figure: capacitive and counting fluctuations of the effective
     charge-counting measurement of the charged plate (supplement Sec. S4.3,
     kernel Psi_p of Eq. S4.13 with the Gaussian Gamma of Eq. S4.15) vs. plate
-    width sigma, at omega = 0.
-    Both are normalized by the large-sigma capacitive noise
-    S_ref = 16 pi^(3/2) sigma^3 c_eff^2 (code units), i.e. Eq. (S4.20) with
+    width a, at omega = 0.
+    Both are normalized by the large-a capacitive noise
+    S_ref = 16 pi^(3/2) a^3 c_eff^2 (code units), i.e. Eq. (S4.20) with
     U -> 1 and eps_m/d -> c_eff (Debye layers included).
 -------------------------------------------------------------------------------
 created on:
@@ -16,7 +16,7 @@ last change:
 notes:
     Dimensionless units: lengths in l_D, times in tau_D, energies in kT.
     Without the Debye layers (leading order in l_D, as in Eq. S4.20) the
-    reference is 4 pi^(3/2) sigma^3 / l_th^2, larger by ((1 + l_th)/l_th)^2.
+    reference is 4 pi^(3/2) a^3 / l_th^2, larger by ((1 + l_th)/l_th)^2.
 -------------------------------------------------------------------------------
 contributors:
     Jose:
@@ -86,7 +86,7 @@ con_colors = (
     / 255
 )
 
-SIG_MIN_NM, SIG_MAX_NM, N_SIG = 1.0, 1000.0, 60
+A_MIN_NM, A_MAX_NM, N_A = 1.0, 1000.0, 60
 YLIM = (1e-4, 2e0)
 
 # ── Dimensionless parameters ──────────────────────────────────────────────────
@@ -108,37 +108,37 @@ def S_plate(s, A, epsrel):
 
 
 def S_ref(s):
-    """Large-sigma capacitive noise of the plate kernel, 16 pi^(3/2) s^3 c_eff^2."""
+    """Large-a capacitive noise of the plate kernel, 16 pi^(3/2) s^3 c_eff^2."""
     return 16.0 * np.pi**1.5 * s**3 * c_e**2
 
 
 if __name__ == "__main__":
-    sig_nm = np.logspace(np.log10(SIG_MIN_NM), np.log10(SIG_MAX_NM), N_SIG)
-    s = sig_nm * nm
+    a_nm = np.logspace(np.log10(A_MIN_NM), np.log10(A_MAX_NM), N_A)
+    s = a_nm * nm
     cap = np.array([S_plate(si, A_plate_cap, 1e-9) for si in s]) / S_ref(s)
     count = np.array([S_plate(si, A_plate_count, 1e-6) for si in s]) / S_ref(s)
 
     print(f"eps/eps_m = {r_eps:.2f}, d/l_D = {d_norm:.2f}, c_eff = {c_e:.4f}")
-    print(f"S_cap/S_ref at sigma = {sig_nm[-1]:g} nm: {cap[-1]:.4f}")
+    print(f"S_cap/S_ref at a = {a_nm[-1]:g} nm: {cap[-1]:.4f}")
     i = np.argmax(count)
-    print(f"max S_count/S_ref = {count[i]:.4f} at sigma = {sig_nm[i]:.2f} nm")
+    print(f"max S_count/S_ref = {count[i]:.4f} at a = {a_nm[i]:.2f} nm")
 
     fig, ax = plt.subplots(figsize=(width_md, height_md))
     ax.spines[["right", "top"]].set_visible(False)
     plt.subplots_adjust(**fig_margins_md)
-    ax.plot(sig_nm, cap, "-", lw=2, color=con_colors[3], label="Capacitive", zorder=3)
-    ax.plot(sig_nm, count, "-", lw=2, color=con_colors[0], label="Counting", zorder=3)
+    ax.plot(a_nm, cap, "-", lw=2, color=con_colors[3], label="Capacitive", zorder=3)
+    ax.plot(a_nm, count, "-", lw=2, color=con_colors[0], label="Counting", zorder=3)
     ax.axhline(1.0, ls="--", lw=1, color=con_colors[3])
     ax.set_xscale("log")
-    ax.set_xlim(SIG_MIN_NM, SIG_MAX_NM)
+    ax.set_xlim(A_MIN_NM, A_MAX_NM)
     ax.set_yscale("log")
     ax.set_ylim(*YLIM)
-    ax.set_xlabel(r"Plate width $\sigma$ (nm)")
+    ax.set_xlabel(r"Plate width $a$ (nm)")
     ax.set_ylabel(r"$S^Q\,/\,S^Q_{\mathrm{cap},\infty}$")
     handles, _ = ax.get_legend_handles_labels()
     handles.append(
-        Line2D([], [], ls="--", lw=1, color="k", label=r"Large-$\sigma$ limit")
+        Line2D([], [], ls="--", lw=1, color="k", label=r"Large-$a$ limit")
     )
     ax.legend(handles=handles, frameon=False, loc="lower left")
-    fig.savefig(figure_path(fig_dir, "charged_plate_noise_vs_sigma.pdf"))
+    fig.savefig(figure_path(fig_dir, "charged_plate_noise_vs_a.pdf"))
     plt.show()

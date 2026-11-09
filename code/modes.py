@@ -8,7 +8,7 @@
             oscillatory band shaded below it
         (c) capacitive and counting contributions to the inverse Fisher
             information rate of the charged-plate (field sensor) vs. plate
-            width sigma
+            width a, with the large-a capacitive asymptote (dashed)
 -------------------------------------------------------------------------------
 created on:
     Thu 5 Nov 2026
@@ -22,9 +22,10 @@ notes:
     Panels b and c use noise_reference.py (units: l_D = tau_D = 1) with the
     Table I parameters from params.py.
     Panel c: plate kernel of supplement Eq. (S4.11) with a Gaussian lateral
-    profile Gamma(x) = exp(-|x|^2 / 2 sigma^2), at omega = 0;
+    profile Gamma(x) = exp(-|x|^2 / 2 a^2), at omega = 0;
     I_x^-1 = S^Q_x(0) / (4 c_eff^2 A_p^2) (Eq. S4.28), computed in units
-    k_B T / (alpha l_D) and plotted in mV^2 ns. Numerics only.
+    k_B T / (alpha l_D) and plotted in mV^2 ns. Dashed: large-a asymptote
+    I_cap = pi^(1/2) alpha a / (k_B T).
 -------------------------------------------------------------------------------
 contributors:
     Jose:
@@ -39,8 +40,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-from params import figure_path, l_D, d, e_m, kT, a
-from noise_reference import bound_mode, c_eff, SV_plate_cap, SV_plate_count
+from params import figure_path, l_D, d, e_m, kT, alph
+from noise_reference import bound_mode, c_eff, SV_plate_cap, SV_plate_count, SV_JN
 
 plt.rcParams.update(
     {
@@ -116,10 +117,11 @@ YLIM_B = (1e-2, 1e3)
 ALPHA_FILL = 0.15  # opacity of the oscillatory band
 
 # panel c
-SIG_MIN_NM, SIG_MAX_NM, N_SIG = 0.1, 100.0, 60
+A_MIN_NM, A_MAX_NM, N_A = 0.1, 100.0, 60
 YLIM_C = (1.0, 1e4)  # mV^2 ns
+A_ASYM_MIN_NM = 2.0  # capacitive asymptote drawn only for a >= this (clears the label)
 YLABEL_GAP_C = "3pt"  # extra space between the two lines of the y label
-I_UNIT = kT / (a * l_D) * 1e6 * 1e9  # k_B T/(alpha l_D) in mV^2 ns
+I_UNIT = kT / (alph * l_D) * 1e6 * 1e9  # k_B T/(alpha l_D) in mV^2 ns
 
 # Table I parameters (params.py) in units of l_D
 R_EPS = 1.0 / e_m  # eps / eps_m
@@ -229,24 +231,27 @@ if __name__ == "__main__":
     align_labels(axb)
 
     # panel c
-    sig_nm = np.logspace(np.log10(SIG_MIN_NM), np.log10(SIG_MAX_NM), N_SIG)
-    s_c = sig_nm * 1e-9 / l_D
+    a_nm = np.logspace(np.log10(A_MIN_NM), np.log10(A_MAX_NM), N_A)
+    s_c = a_nm * 1e-9 / l_D
     cap = I_UNIT * np.array([SV_plate_cap(s, R_EPS, D_NORM) for s in s_c])
     count = I_UNIT * np.array([SV_plate_count(s, R_EPS, D_NORM) for s in s_c])
+    cap_asym = I_UNIT * SV_JN(s_c)  # large-a limit: I_cap = pi^(1/2) alpha a / k_B T
 
     fig_c, axc = new_panel()
-    axc.plot(sig_nm, cap, "-", lw=LW, color=c_bound, zorder=3)
-    axc.plot(sig_nm, count, "-", lw=LW, color=c_osc, zorder=3)
+    axc.plot(a_nm, cap, "-", lw=LW, color=c_bound, zorder=3)
+    asym = a_nm >= A_ASYM_MIN_NM
+    axc.plot(a_nm[asym], cap_asym[asym], "--", lw=LW_DASH, color=c_bound, zorder=2)
+    axc.plot(a_nm, count, "-", lw=LW, color=c_osc, zorder=3)
     for x, y, lab, col in [
-        (0.3, 2e3, "capacitive", c_bound),
+        (0.13, 3e3, "capacitive", c_bound),
         (0.5, 4.0, "counting", c_osc),
     ]:  # data coordinates
         axc.text(x, y, lab, color=col, fontsize=FONT_ANNOT, va="center", ha="left")
     axc.set_xscale("log")
     axc.set_yscale("log")
-    axc.set_xlim(SIG_MIN_NM, SIG_MAX_NM)
+    axc.set_xlim(A_MIN_NM, A_MAX_NM)
     axc.set_ylim(*YLIM_C)
-    axc.set_xlabel(r"Plate width $\sigma$ (nm)")
+    axc.set_xlabel(r"Plate width $a$ (nm)")
     axc.set_ylabel(
         rf"\begin{{tabular}}{{c}}Inverse info rate\\[{YLABEL_GAP_C}]"
         r"$\dot{\cal I}^{-1}$ (mV$^2$ns)\end{tabular}",
@@ -271,7 +276,7 @@ if __name__ == "__main__":
     )
     for j in (0, -1):
         print(
-            f"sigma = {sig_nm[j]:g} nm: I_cap^-1 = {cap[j]:.4g}, "
+            f"a = {a_nm[j]:g} nm: I_cap^-1 = {cap[j]:.4g}, "
             f"I_count^-1 = {count[j]:.4g}  (mV^2 ns)"
         )
     plt.show()

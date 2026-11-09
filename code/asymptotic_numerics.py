@@ -1,9 +1,9 @@
 """
     Exact numerics vs. asymptotics for the equilibrium noise of a localized
     charge sensor next to a membrane.
-        (a) counting noise vs. sensor height h at fixed sigma
-        (b) capacitive and counting noise vs. sigma at h = l_D
-    All noise is normalized by S_ref = (1/8) 2 pi eps tau_D kT sigma^2 / l_D.
+        (a) counting noise vs. sensor height h at fixed a
+        (b) capacitive and counting noise vs. a at h = l_D
+    All noise is normalized by S_ref = (1/8) 2 pi eps tau_D kT a^2 / l_D.
     Numerics follow calculations/markdowns/noise_numerics_guide.md and are
     cached in repo/numerical_results/.
 -------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ import matplotlib as mpl
 from matplotlib.lines import Line2D
 from tqdm import tqdm
 
-from params import sig, l_D, d, e_m, figure_path, results_path
+from params import a, l_D, d, e_m, figure_path, results_path
 from noise_reference import (
     S_cap,
     S_count,
@@ -97,7 +97,7 @@ RECOMPUTE = False
 
 # ── Dimensionless parameters ──────────────────────────────────────────────────
 nm = 1e-9 / l_D  # 1 nm in units of l_D
-s0 = sig / l_D  # sensor width for panel a
+s0 = a / l_D  # sensor width for panel a
 r_eps = 1.0 / e_m  # eps / eps_m
 d_norm = d / l_D  # membrane thickness
 l_th = 0.5 * r_eps * d_norm  # threshold length
@@ -105,7 +105,7 @@ c_e = c_eff(r_eps, d_norm)
 
 
 def S_bulk(s):
-    """(1/8) 2 pi eps tau_D kT sigma^2 / l_D in code units."""
+    """(1/8) 2 pi eps tau_D kT a^2 / l_D in code units."""
     return 0.25 * np.pi * s**2
 
 
@@ -129,7 +129,7 @@ def load_or_compute(name, build):
     return out
 
 
-# ── Panel a: counting noise vs. h at fixed sigma ──────────────────────────────
+# ── Panel a: counting noise vs. h at fixed a ──────────────────────────────
 def build_height_scan():
     h_nm = np.unique(
         np.concatenate(
@@ -153,22 +153,22 @@ def build_height_scan():
     return dict(h_nm=h_nm, h=h, S_count=S, s=s0, r_eps=r_eps, d_norm=d_norm)
 
 
-# ── Panel b: noise vs. sigma at h = l_D ───────────────────────────────────────
-def build_sigma_scan():
-    sig_nm = np.logspace(0, np.log10(3000), 38)
-    s = sig_nm * nm
+# ── Panel b: noise vs. a at h = l_D ───────────────────────────────────────
+def build_a_scan():
+    a_nm = np.logspace(0, np.log10(3000), 38)
+    s = a_nm * nm
     with Pool() as pool:
         res = np.array(
             list(
                 tqdm(
                     pool.imap(_cap_count, [(si, 1.0) for si in s]),
                     total=len(s),
-                    desc="b: S(sigma)",
+                    desc="b: S(a)",
                 )
             )
         )
     return dict(
-        sig_nm=sig_nm,
+        a_nm=a_nm,
         s=s,
         S_cap=res[:, 0],
         S_count=res[:, 1],
@@ -180,22 +180,22 @@ def build_sigma_scan():
 
 if __name__ == "__main__":
     ha = load_or_compute("asymptotic_counting_vs_h.npz", build_height_scan)
-    sb = load_or_compute("asymptotic_noise_vs_sigma.npz", build_sigma_scan)
+    sb = load_or_compute("asymptotic_noise_vs_a.npz", build_a_scan)
 
     # ── Sanity checks ─────────────────────────────────────────────────────
-    # local minimum at h ~ sigma (S_count -> 0 as h -> 0 is a separate, trivial limit)
+    # local minimum at h ~ a (S_count -> 0 as h -> 0 is a separate, trivial limit)
     deep = ha["h"] > 2.0
     i_min = np.flatnonzero(deep)[np.argmin(ha["S_count"][deep])]
     print(
-        f"a: sigma = {s0 / nm:.2f} nm; local minimum at h = {ha['h_nm'][i_min]:.2f} nm, "
+        f"a: a = {s0 / nm:.2f} nm; local minimum at h = {ha['h_nm'][i_min]:.2f} nm, "
         f"S_count/S_bulk = {ha['S_count'][i_min] / S_bulk(s0):.4f}"
     )
     print(
-        f"b: l_th = {l_th / nm:.1f} nm; S_count/S_bulk at largest sigma = "
+        f"b: l_th = {l_th / nm:.1f} nm; S_count/S_bulk at largest a = "
         f"{sb['S_count'][-1] / S_bulk(sb['s'][-1]):.4f}"
     )
     print(
-        f"b: S_cap/S_bulk at largest sigma = {sb['S_cap'][-1] / S_bulk(sb['s'][-1]):.3f} "
+        f"b: S_cap/S_bulk at largest a = {sb['S_cap'][-1] / S_bulk(sb['s'][-1]):.3f} "
         f"vs asymptote {16 * np.sqrt(np.pi) * sb['s'][-1] * c_e**2:.3f}"
     )
 
@@ -234,7 +234,7 @@ if __name__ == "__main__":
         color=con_colors[4],
         label="Deep expansion",
     )
-    for x, lab in [(1 / nm, r"$l_D$"), (s0 / nm, r"$\sigma$")]:  # positions in nm
+    for x, lab in [(1 / nm, r"$l_D$"), (s0 / nm, r"$a$")]:  # positions in nm
         # stop below the legend (ymax in axes fraction)
         axa.axvline(x, ymax=0.65, lw=0.5, color="0.5", ls="--", zorder=0)
         axa.text(x * 1.08, 0.015, lab, color="0.4", fontsize=8, va="bottom", ha="left")
@@ -249,7 +249,7 @@ if __name__ == "__main__":
 
     # panel b
     s = sb["s"]
-    sn = sb["sig_nm"]
+    sn = sb["a_nm"]
     ss = np.logspace(np.log10(s.min()), np.log10(s.max()), 400)
     fig_b, axb = new_panel()
     axb.plot(
@@ -282,10 +282,10 @@ if __name__ == "__main__":
     axb.set_xlim(sn.min(), sn.max())
     axb.set_yscale("log")
     axb.set_ylim(1e-2, 1e2)
-    axb.set_xlabel(r"Sensor width $\sigma$ (nm)")
+    axb.set_xlabel(r"Sensor width $a$ (nm)")
     axb.set_ylabel(r"$S^Q\,/\,S^Q_{\mathrm{ref}}$")
     handles, _ = axb.get_legend_handles_labels()
     handles.append(Line2D([], [], ls="--", lw=1, color="k", label="Asymptotics"))
     axb.legend(handles=handles, frameon=False, loc="upper left")
-    fig_b.savefig(figure_path(fig_dir, "asymptotic_noise_vs_sigma.svg"), dpi=600)
+    fig_b.savefig(figure_path(fig_dir, "asymptotic_noise_vs_a.svg"), dpi=600)
     plt.show()

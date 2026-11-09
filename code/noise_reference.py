@@ -13,7 +13,7 @@ Membrane parameters:
     d     = membrane thickness (in l_D)
     l_th  = r_eps * d / 2  (threshold length l^th_o, in l_D)
 
-Localized kernel: Psi(x, z) = exp(-|x|^2 / 2 sigma^2) * exp(-|z|/h) * sgn(z),  s = sigma/l_D.
+Localized kernel: Psi(x, z) = exp(-|x|^2 / 2 a^2) * exp(-|z|/h) * sgn(z),  s = a/l_D.
 """
 import numpy as np
 from scipy import integrate, linalg
@@ -137,14 +137,14 @@ def SV_plate_count(s, r_eps, d):
 
 # ------------------------------------------------------------------ gain, voltage noise, closed forms
 def gain(s, h, r_eps, d):
-    """Gain g = d<M>/dV = 4 pi sigma^2 c_eff eta/(1 + eta), eta = h/l_D."""
+    """Gain g = d<M>/dV = 4 pi a^2 c_eff eta/(1 + eta), eta = h/l_D."""
     return 4.0 * np.pi * s**2 * c_eff(r_eps, d) * h / (1.0 + h)
 
 def S_shot(s):                 return 0.25 * np.pi * s**2
 def S_JN(s, r_eps, d):         return 4.0 * np.pi**1.5 * s**3 * c_eff(r_eps, d)**2
 def S_count_shallow(s, h):     return 2.0 * np.pi * h**2 / (1.0 + h)**3 * s**2
 def S_count_deep(s, h):        return 2.0 * np.pi * (s**2 / h - SQPI * s + h)
-def SV_JN(s):                  return 1.0 / (SQPI * s)        # k_B T/(pi^(1/2) alpha sigma)
+def SV_JN(s):                  return 1.0 / (SQPI * s)        # k_B T/(pi^(1/2) alpha a)
 
 
 def optimal_height(s, r_eps, d, n=26):
