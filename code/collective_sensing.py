@@ -1,9 +1,9 @@
 """
-    Collective sensing figure (one row, 165 x 35 mm), panels saved separately:
-        a  hand-drawn, 40 mm wide (not produced here)
+    Collective sensing figure (one row, 178 x 35 mm), panels saved separately:
+        a  hand-drawn, 43 mm wide (not produced here)
         b  cartoon of N measurement traces xi_j(t)
         c  long-time saturation I_N / I_cell vs. channel density nu
-        d  critical density nu*(t_meas) / nu*_0 vs. measurement time
+        d  critical density nu*(t_obs) / nu*_0 vs. observation time
 -------------------------------------------------------------------------------
 created on:
     Fri 6 Nov 2026
@@ -20,13 +20,13 @@ notes:
     through the zeroth harmonic (S5.51), with S_V,cell(0) = 2 k_B T R_m,
     R_m = tau_leak / (4 pi R^2 c) (S5.39). The local noise is set by an assumed
     single-channel rate I_ind = 1 / (dV^2 t), i.e. resolving dV = 10 mV within
-    t = 10 us (S4.26), so I_ind^-1 = 1e6 mV^2 ns. Sherman-Morrison on
+    t = 10 us (S4.26), so I_ind^-1 = 1e3 mV^2 us. Sherman-Morrison on
     S_jk = I_ind^-1 delta_jk + S_V,cell(0) gives
         I_N / I_cell = N / (N* + N),   N* = I_cell / I_ind.
     This is the t -> infinity limit of the finite-time result used in panel d.
 
     Panel d: calculations/markdowns/fisher_info_vs_density_and_time.md.
-    nu*(t_meas) is the density at which the exact finite-time Fisher
+    nu*(t_obs) is the density at which the exact finite-time Fisher
     information reaches half the perfect-instrument value,
     I(t, nu*) = I_cell(t) / 2 (the handoff's nu_1/2). Writing
     nu*(t) = nu*_0 f(t / tau_leak), f -> 1 at long times (nu*_0 = nu* of
@@ -69,11 +69,12 @@ logging.getLogger("fontTools").setLevel(logging.ERROR)
 logging.getLogger("matplotlib.backends.backend_pdf").setLevel(logging.ERROR)
 
 # ── Figure layout (all in mm) ─────────────────────────────────────────────────
-# Each panel is saved as its own file, to be assembled by hand into a 165 x 35 mm
-# row: panel a (hand-drawn) 40 mm wide, then b, c, d (widths sum to 125 mm).
+# Each panel is saved as its own file, to be assembled by hand into a 178 x 35 mm
+# row (PRL page width): panel a (hand-drawn) 43 mm wide, then b, c, d (widths
+# sum to 135 mm).
 fig_dir = "collective_sensing"  # figures/<fig_dir>/raw/
 mm_to_in = 25.4
-PANEL_W = {"b": 37, "c": 45, "d": 43}  # canvas width of each panel (mm)
+PANEL_W = {"b": 40, "c": 48.5, "d": 46.5}  # canvas width of each panel (mm)
 PANEL_H = 35
 AX_BOTTOM, AX_TOP = 10.5, 33  # vertical extent of each axes box
 # Panel b has no tick labels: its axes box extends down toward its x-label
@@ -83,9 +84,9 @@ XLABEL_Y = 1.0  # baseline of every x-label above the canvas bottom (mm)
 # (left edge, right edge) of each axes box within its own panel canvas;
 # tick/axis labels sit outside
 AX_X = {
-    "b": (6, 28),
-    "c": (15, 43),
-    "d": (12.5, 40),
+    "b": (6, 31),
+    "c": (15, 46.5),
+    "d": (12.5, 43.5),
 }
 
 con_colors = (
@@ -111,7 +112,7 @@ LW = 1.5  # linewidth of the curves
 LW_DASH = 1  # linewidth of the nu* markers
 FONT_ANNOT = 9  # fontsize of in-plot annotations
 YLIM = (1e-3, 1.5)  # panel c
-T_MEAS_RANGE = (1e-6, 1.0)  # panel d, measurement time range (s)
+T_OBS_RANGE = (1e-6, 1.0)  # panel d, observation time range (s)
 
 # ── Traces cartoon panel (xi_j(t) for many channels) ──────────────────────────
 TR_OFFSETS = (3.2, 2.0, 0.0)  # vertical offsets of xi_1, xi_2, xi_N
@@ -224,7 +225,7 @@ def I_ratio(N):
 
 
 def saturation_panel(ax):
-    """Panel c: I_N / I_cell vs. channel density, long measurement times."""
+    """Panel c: I_N / I_cell vs. channel density, long observation times."""
     N = np.logspace(N_log_min, N_log_max, n_points)
     nu_um = 1e-12 * N / area  # channels / um^2
     nu_star_um = 1e-12 * nu_star
@@ -242,7 +243,7 @@ def saturation_panel(ax):
     ax.text(
         1.5 * nu_star_um,
         3 * YLIM[0],
-        r"$\nu^*$",
+        r"$\nu_0^*$",
         color=con_colors[3],
         fontsize=FONT_ANNOT,
         va="center",
@@ -267,29 +268,27 @@ def ratio_to_perfect(x, rho):
 
 
 def nu_star_factor(x):
-    """f(x) = nu*(t_meas) / nu*_0, where I(t, nu*) = I_cell(t) / 2 and x = t / tau."""
+    """f(x) = nu*(t_obs) / nu*_0, where I(t, nu*) = I_cell(t) / 2 and x = t / tau."""
     h = lambda lr: ratio_to_perfect(x, np.exp(lr)) - 0.5
     return 1 / np.exp(brentq(h, np.log(1e-14), np.log(1e8), xtol=1e-14))
 
 
 def nu_star_panel(ax):
-    """Panel d: nu*(t_meas) / nu*_0 vs. measurement time."""
-    t = np.logspace(np.log10(T_MEAS_RANGE[0]), np.log10(T_MEAS_RANGE[1]), n_points)
-    f = np.array([nu_star_factor(x) for x in t / tau])  # nu*(t_meas) / nu*_0
+    """Panel d: nu*(t_obs) / nu*_0 vs. observation time."""
+    t = np.logspace(np.log10(T_OBS_RANGE[0]), np.log10(T_OBS_RANGE[1]), n_points)
+    f = np.array([nu_star_factor(x) for x in t / tau])  # nu*(t_obs) / nu*_0
 
     ax.spines[["right", "top"]].set_visible(False)
     ax.plot(1e6 * t, f, "-", lw=LW, color=con_colors[3], zorder=3)
-    # Short-time asymptote f ~ 2 tau_leak / t_meas (handoff Sec. 6)
-    ax.plot(
-        1e6 * t, 2 * tau / t, "--", lw=LW_DASH, color=con_colors[3], zorder=2
-    )
+    # Short-time asymptote f ~ 2 tau_leak / t_obs (handoff Sec. 6)
+    ax.plot(1e6 * t, 2 * tau / t, "--", lw=LW_DASH, color=con_colors[3], zorder=2)
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_ylim(f.min() / 1.4, 1.4 * f.max())  # asymptote clipped below
-    ax.set_xlim(1e6 * T_MEAS_RANGE[0], 1e6 * T_MEAS_RANGE[1])  # us
+    ax.set_xlim(1e6 * T_OBS_RANGE[0], 1e6 * T_OBS_RANGE[1])  # us
     ax.set_xticks([1e0, 1e2, 1e4, 1e6])
     ax.set_yticks([1e0, 1e1, 1e2, 1e3])
-    ax.set_xlabel(r"Time $t_{\rm meas}$ ($\mu$s)")
+    ax.set_xlabel(r"Time $t_{\rm obs}$ ($\mu$s)")
     ax.set_ylabel(r"Density $\nu^* / \nu^*_0$")
     return t, f
 
@@ -306,10 +305,10 @@ if __name__ == "__main__":
 
     print(
         f"I_ind  = {I_ind:.4g} V^-2 s^-1  ({DV_IND * 1e3:g} mV in {T_IND * 1e6:g} us;"
-        f" I_ind^-1 = {1e15 / I_ind:.4g} mV^2 ns)"
+        f" I_ind^-1 = {1e12 / I_ind:.4g} mV^2 us)"
     )
     print(f"R_m    = {R_m * 1e-6:.4g} MOhm")
-    print(f"S_L    = {S_V_cell * 1e15:.4g} mV^2 ns")
+    print(f"S_L    = {S_V_cell * 1e12:.4g} mV^2 us")
     print(
         f"I_cell = {I_cell:.4g} V^-2 s^-1  (resolves {DV_IND * 1e3:g} mV in "
         f"{1 / (I_cell * DV_IND**2) * 1e9:.4g} ns)"

@@ -1,5 +1,5 @@
 """
-    SI figure: Fisher information about V vs. measurement time t_meas
+    SI figure: Fisher information about V vs. observation time t_obs
     (supplement Sec. "Collective sensing", subsections "The perfect instrument"
     and "Multiple sensors").
         black   perfect instrument, I_cell(t) = Idot_cell (t + 2 tau_leak)
@@ -76,7 +76,7 @@ CMAP_RANGE = (0.3, 0.85)
 
 # ── Tunable constants ─────────────────────────────────────────────────────────
 N_VALUES = (1e1, 1e2, 1e3, 1e4, 1e5)  # number of sensors per curve
-T_MEAS_RANGE = (1e-6, 1.0)  # measurement time range (s)
+T_OBS_RANGE = (1e-6, 1.0)  # observation time range (s)
 N_T = 300
 LW_CELL = 2
 LW_N = 1.5
@@ -94,7 +94,7 @@ def fisher_N(t, N):
 
 
 if __name__ == "__main__":
-    t = np.logspace(np.log10(T_MEAS_RANGE[0]), np.log10(T_MEAS_RANGE[1]), N_T)
+    t = np.logspace(np.log10(T_OBS_RANGE[0]), np.log10(T_OBS_RANGE[1]), N_T)
     t_us = 1e6 * t
     cmap = plt.get_cmap("magma")
     norm = mcolors.LogNorm(min(N_VALUES), max(N_VALUES))
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     ax.set_yscale("log")
     ax.set_xlim(t_us[0], t_us[-1])
     ax.set_xticks([1e0, 1e2, 1e4, 1e6])
-    ax.set_xlabel(r"Measurement time $t_{\rm meas}$ ($\mu$s)")
+    ax.set_xlabel(r"Observation time $t_{\rm obs}$ ($\mu$s)")
     ax.set_ylabel(r"Fisher information ${\cal I}$ (mV$^{-2}$)")
     ax.set_ylim(1e-2, 1e8)
     ax.set_yticks([1e-2, 1e0, 1e2, 1e4, 1e6, 1e8])

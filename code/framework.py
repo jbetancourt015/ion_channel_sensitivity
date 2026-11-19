@@ -53,14 +53,15 @@ logging.getLogger("matplotlib.backends.backend_pdf").setLevel(logging.ERROR)
 # ── Figure sizes and margins ──────────────────────────────────────────────────
 fig_dir = "framework"  # figures/<fig_dir>/raw/
 
-# Reference size (Nature single-column width in mm) for scaling panel dimensions
-pg_width = 165  # mm
+# Reference size (PRL two-column page width in mm) for scaling panel dimensions
+pg_width = 178  # mm
 mm_to_in = 25.4
 
-# Panel dimensions in inches (scaled from the mm reference), width / height = aspect
-aspect = 1.4
+# Panel dimensions in inches (scaled from the mm reference). The height is fixed
+# at its value for the earlier 165 mm layout (0.35 * 165 mm / 1.4 = 41.25 mm);
+# only the width scales with pg_width.
 width_md = 0.35 * pg_width / mm_to_in
-height_md = width_md / aspect
+height_md = 41.25 / mm_to_in
 
 # Fixed margins for consistent axes size across both single-panel figures
 fig_margins_md = dict(left=0.12, right=0.8, bottom=0.15, top=0.9)

@@ -24,7 +24,7 @@ notes:
     Panel c: plate kernel of supplement Eq. (S4.11) with a Gaussian lateral
     profile Gamma(x) = exp(-|x|^2 / 2 a^2), at omega = 0;
     I_x^-1 = S^Q_x(0) / (4 c_eff^2 A_p^2) (Eq. S4.28), computed in units
-    k_B T / (alpha l_D) and plotted in mV^2 ns. Dashed: large-a asymptote
+    k_B T / (alpha l_D) and plotted in mV^2 us. Dashed: large-a asymptote
     I_cap = pi^(1/2) alpha a / (k_B T).
 -------------------------------------------------------------------------------
 contributors:
@@ -65,14 +65,15 @@ logging.getLogger("matplotlib.backends.backend_pdf").setLevel(logging.ERROR)
 # ── Figure sizes and margins ──────────────────────────────────────────────────
 fig_dir = "modes"  # figures/<fig_dir>/raw/
 
-# Reference size (Nature single-column width in mm) for scaling panel dimensions
-pg_width = 165  # mm
+# Reference size (PRL two-column page width in mm) for scaling panel dimensions
+pg_width = 178  # mm
 mm_to_in = 25.4
 
-# Panel dimensions in inches (scaled from the mm reference), width / height = aspect
-aspect = 1.4
+# Panel dimensions in inches (scaled from the mm reference). The height is fixed
+# at its value for the earlier 165 mm layout (0.35 * 165 mm / 1.4 = 41.25 mm);
+# only the width scales with pg_width.
 width_md = 0.35 * pg_width / mm_to_in
-height_md = width_md / aspect
+height_md = 41.25 / mm_to_in
 
 # Fixed margins for consistent axes size across both single-panel figures
 fig_margins_md = dict(left=0.29, right=0.95, bottom=0.24, top=0.9)
@@ -118,10 +119,10 @@ ALPHA_FILL = 0.15  # opacity of the oscillatory band
 
 # panel c
 A_MIN_NM, A_MAX_NM, N_A = 0.1, 100.0, 60
-YLIM_C = (1.0, 1e4)  # mV^2 ns
+YLIM_C = (1e-3, 1e1)  # mV^2 us
 A_ASYM_MIN_NM = 2.0  # capacitive asymptote drawn only for a >= this (clears the label)
 YLABEL_GAP_C = "3pt"  # extra space between the two lines of the y label
-I_UNIT = kT / (alph * l_D) * 1e6 * 1e9  # k_B T/(alpha l_D) in mV^2 ns
+I_UNIT = kT / (alph * l_D) * 1e6 * 1e6  # k_B T/(alpha l_D) in mV^2 us
 
 # Table I parameters (params.py) in units of l_D
 R_EPS = 1.0 / e_m  # eps / eps_m
@@ -243,8 +244,8 @@ if __name__ == "__main__":
     axc.plot(a_nm[asym], cap_asym[asym], "--", lw=LW_DASH, color=c_bound, zorder=2)
     axc.plot(a_nm, count, "-", lw=LW, color=c_osc, zorder=3)
     for x, y, lab, col in [
-        (0.13, 3e3, "capacitive", c_bound),
-        (0.5, 4.0, "counting", c_osc),
+        (0.13, 3.0, "capacitive", c_bound),
+        (0.5, 4e-3, "counting", c_osc),
     ]:  # data coordinates
         axc.text(x, y, lab, color=col, fontsize=FONT_ANNOT, va="center", ha="left")
     axc.set_xscale("log")
@@ -254,7 +255,7 @@ if __name__ == "__main__":
     axc.set_xlabel(r"Plate width $a$ (nm)")
     axc.set_ylabel(
         rf"\begin{{tabular}}{{c}}Inverse info rate\\[{YLABEL_GAP_C}]"
-        r"$\dot{\cal I}^{-1}$ (mV$^2$ns)\end{tabular}",
+        r"$\dot{\cal I}^{-1}$ (mV$^2\,\mu$s)\end{tabular}",
         labelpad=LABELPAD,
     )
     align_labels(axc)
@@ -277,6 +278,6 @@ if __name__ == "__main__":
     for j in (0, -1):
         print(
             f"a = {a_nm[j]:g} nm: I_cap^-1 = {cap[j]:.4g}, "
-            f"I_count^-1 = {count[j]:.4g}  (mV^2 ns)"
+            f"I_count^-1 = {count[j]:.4g}  (mV^2 us)"
         )
     plt.show()
